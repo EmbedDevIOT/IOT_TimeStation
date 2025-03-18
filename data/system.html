@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimeStationSetup</title>
+  <link rel="shortcut icon" href="img/clock.png" type="image/x-icon">
+  <link rel="stylesheet bg-dark" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src='js/user.js'></script>
+</head>
+
+<body class="bg-dark" onload="StartSM()">
+  <header class="text-white">
+    <div class="container-sm">
+      <div class="row">
+        <div class="title">
+          <span>Настройки системы</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="mt-3 mx-auto">
+    <div class="container-fluid">
+      <div class="row justify-content-md-start">
+        <div class="col ">
+          <nav>
+            <div class="mt-5 d-flex flex-column flex-shrink-0 p-1 text-white bg-dark" style="width: 380px;">
+              <div class="container-fluid">
+                <div class="row">
+                  <div class="col">
+                    <div class="ms-0 pb-4">
+                      <img src="img/system.png" style="width: 200px; height: 200px; margin-left: 70px;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row justify-content-center mt-5 ms-3 me-5 ">
+                <hr style="margin-left: 10%; margin-right: 10%;"> 
+                <span class="user_font text-center pb-3">Настройки</span>
+                <hr style="margin-left: 10%; margin-right: 10%;">
+              </div>
+
+              <ul class="px-5 nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                  <div class="Btn1">
+                    <img src="img/file.png" style="width: 30px; height: 30px;">
+                    <a href="index.html" class="nav-link text-white " aria-current="page">
+                      Состояние устройства
+                    </a>
+                  </div>
+                </li>
+
+                <li class="nav-item">
+                  <div class="Btn1">
+                    <img src="img/clock.png" style="width: 30px; height: 30px;">
+                    <a href="timeset.html" class="nav-link text-white " aria-current="page">
+                      Настройки часов
+                    </a>
+                  </div>
+                </li>
+
+
+                <li>
+                  <div class="Btn1">
+                    <img src="img/system.png" style="width: 30px; height: 30px; ">
+                    <a href="system.html" class="nav-link text-white">
+                      Настройки системы
+                    </a>
+                  </div>
+                </li>
+
+                <li>
+                  <div class="Btn1">
+                    <img src="img/reset.png" style="width: 30px; height: 30px;">
+                    <a href="#" class="nav-link text-white" onclick="ButtonReboot()">
+                      Перезагрузка
+                    </a>
+                  </div>
+                </li>
+              </ul>
+          </nav>
+        </div>
+
+        <div class="col mx-auto flex-column mb-auto text-center">
+          <div class="mt-4 container-md text-white text-center">
+            <div class="row">
+              <div class="col rounded border border-1 border-primary">
+                <div class="mt-3 title" style="color: white; font: 18px Verdana;">
+                  <span>Режим запуска подсветки:</span>
+                </div>
+
+                <div class="mt-2 text-white text-center" style="font:18px Georgia; ">
+                  <div class="mt-4 justify-content-end">
+                    <label for="BrStart">ВКЛЮЧЕНИЕ: </label>
+                    <input type="time" id="BrStart" name="time"
+                      class="mt-2  form-control text-white text-center bg-dark" />
+                    <label for="BrStop" class="mt-2">ОТКЛЮЧЕНИЕ: </label>
+                    <input type="time" id="BrStop" name="time"
+                      class="mt-2 mb-3 form-control text-white text-center bg-dark" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Контейнер инициализации RTC -->
+          <div class="mt-4 container-md text-white text-center">
+            <div class="row">
+              <div class="col rounded border border-1 border-primary">
+                <!-- Инициализация RTC-->
+                <div class="mt-3 title" style="color: white; font: 18px Verdana;">
+                  <span>Настройки импульса:</span>
+                </div>
+
+                <div class="mt-3 mb-3 text-white text-center" style="font:18px Georgia; ">
+                  <!-- Four Blocks. -->
+                  <div class="container-md mt-3 px-0">
+                    <div class="row gx-3 gy-3">
+
+                      <!-- First Channel Voltage preset -->
+                      <div class="col">
+                        <div class="p-4 border rounded border border-1 border-primary">
+                          <div class="title" style="color: white; font: 18px Verdana;">
+                            <span>Напряжение:</span>
+                          </div>
+                          <div class="mt-3 text-white text-center" style="font: 22px Times New Roman ;">
+                            <!-- Напряжение: (В) -->
+                            <div class="mt-2 d-grid gap-2 d-md-flex dropdown justify-content-md-center "
+                              style="padding-top: 10px;">
+                              <div class="input-group mb-1">
+                                <select class="form-select text-white text-center bg-dark" id="volt1"
+                                  aria-label="Example select with button addon">
+                                  <option value="12">12 В</option>
+                                  <option value="24">24 В</option>
+                                  <option value="24S">СЕК.ИМП. 24В</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <p>Установка длительности импульса </p>
+                      <!-- Normal pulse preset -->
+                      <div class="col">
+                        <div class="p-4 border rounded border border-1 border-primary">
+                          <div class="title" style="color: white; font: 18px Verdana;">
+                            <span>НОРМАЛЬНЫЙ:</span>
+                          </div>
+                          <div class="mt-3 text-white text-center" style="font: 22px Times New Roman ;">
+                            Длительность: (мс)
+                            <div class="mt-2 d-grid gap-2 d-md-flex dropdown justify-content-md-center "
+                              style="padding-top: 10px;">
+                              <div class="input-group mt-2">
+                                <input type="number" class="form-control text-white text-center bg-dark"
+                                  id="PulseNormal" placeholder="" aria-label=" " aria-describedby="button-addon1"
+                                  min="500" max="2000" step="100"
+                                  onkeyup="this.value = this.value.replace(/[^\d]/g,'');">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- FAST pulse preset -->
+                      <div class="col">
+                        <div class="p-4 border rounded border border-1 border-primary">
+                          <div class="title" style="color: white; font: 18px Verdana;">
+                            <span>БЫСТРЫЙ:</span>
+                          </div>
+                          <div class="mt-3 text-white text-center" style="font: 22px Times New Roman ;">
+                            Длительность: (мс)
+                            <div class="mt-2 d-grid gap-2 d-md-flex dropdown justify-content-md-center "
+                              style="padding-top: 10px;">
+                              <div class="input-group mt-2">
+                                <input type="number" class="form-control text-white text-center bg-dark" id="PulseFast"
+                                  placeholder="" aria-label=" " aria-describedby="button-addon1" min="500" max="2000"
+                                  step="100" onkeyup="this.value = this.value.replace(/[^\d]/g,'');">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="container-md mt-3 px-0">
+            <div class="col">
+              <div class=" p-4 rounded border border-1 border-primary">
+                <div class="title " style="color: white; font: 18px Verdana;">
+                  <span>Действия по кнопке:</span>
+                </div>
+
+                <div class="input-group mt-4 mb-2">
+                  <select class="form-select text-white text-center bg-dark" id="BtnCH"
+                    aria-label="Example select with button addon">
+                    <option value="1">КАНАЛ 1</option>
+                    <option value="2">КАНАЛ 2</option>
+                    <option value="3">CИНХРОННО (1 + 2)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="mt-4 p-0 container-fluid ">
+            <div class="row ">
+              <div class="d-grid gap-2 d-md-flex justify-content-md-between" style="padding-bottom: 20px;">
+                <button type="submit" class="btn btn-outline-success" onclick="ButtonSaveSystem()"> Сохранить настройки
+                </button>
+                <button type="submit" class="btn btn-outline-warning mt-2" onclick="ButtonFactoryReset()">
+                  Общий сброс </button>
+                <a href="index.html" class="btn btn-secondary mt-2" type="button"> На главную </a>
+              </div>
+            </div>
+          </div>>
+
+        </div>
+      </div>
+    </div>
+    </div>
+  </main>
+
+  <div class="conteiner-md text-center text-white-50 margin-bottom">
+    <hr> 
+    <!-- <div>
+      created by <b>EmbedDev </b> for <a href="https://retra.pro/" class="text-white"> RETRA</a>
+    </div> -->
+    <i>sn:</i>
+    <output class="text-white" id="sn" value="NA"> </output>
+    <i>fw:</i>
+    <output class="text-white" id="firmware" value="NA"></output>
+    </p>
+  </div>
+
+</body>
+
+</html>

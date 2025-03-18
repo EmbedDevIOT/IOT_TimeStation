@@ -57,8 +57,8 @@ void UART_Recieve_Data(void);
 //=======================       S E T U P       =========================
 void setup()
 {
-    CFG.fw = "0.0.2";
-    CFG.fwdate = "17.03.2024";
+    CFG.fw = "0.0.3";
+    CFG.fwdate = "18.03.2024";
 
     Serial.begin(UARTSpeed);
    
@@ -382,7 +382,6 @@ void UART_Recieve_Data()
         r.trim();
         if (r.length() > 3)
         {
-
             Amplifier.connecttohost(r.c_str());
             // if (r == "time")
             // {

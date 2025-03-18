@@ -1,0 +1,292 @@
+@import url('https://fonts.googleapis.com/css?family=Orbitron');
+
+@font-face {
+  font-family: 'Orbitron';
+  src: url(/font/Orbitron.ttf) format('ttf');
+  font-weight: 400;
+}
+
+:root {
+  --color1: #ced4da;
+  --color2: #0a58ca;
+  --color3: #2f3134;
+  --color4: rgb(171, 30, 32);
+  --color: green;
+}
+
+
+header {
+  /* 0 flex-grow, 0 flex-shrink, auto flex-basis */
+  display: flex;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+/************* Стиль иконок ***************/
+/* i {
+  color: var(--color4);
+} */
+
+.icon_style {
+  display: inline-flexbox;
+  font-size: 1.7em;
+  /* text-align: end; */
+  justify-content: center;
+  position: relative;
+  margin: auto;
+}
+
+.icon_style_logo {
+  display: inline-flexbox;
+  font-size: 15em;
+  /* padding:10px 0px; */
+  /* margin:-30px; */
+  /* text-align: end; */
+  /* justify-content: center; */
+  /* position:relative; */
+  /* //margin: auto; */
+}
+
+/*********************************************************/
+
+.main-content {
+  /* 1 flex-grow, 0 flex-shrink, auto flex-basis */
+  flex: 1 0 auto;
+}
+
+
+
+/* footer{
+    0 flex-grow, 0 flex-shrink, auto flex-basis 
+     flex: 0 0 auto;
+     clear: both;
+    position: absolute;
+     height: 200px; 
+    margin-bottom: 200px; 
+ } */
+
+/* Задание градиента для header через конструктор https://www.colorzilla.com/gradient-editor/
+/* Фоновое изображение вставляется через метод url 
+url(../img/clock.ico)
+background-size - изменение масштаба вставленного изображения
+
+header {
+    background: url(../img/clock.ico), rgb(242,246,248);
+    background: url(../img/clock.ico), -moz-linear-gradient(left,  rgba(242,246,248,1) 0%, rgba(216,225,231,1) 50%, rgba(224,239,249,1) 100%);
+    background: url(../img/clock.ico), -webkit-linear-gradient(left,  rgba(242,246,248,1) 0%,rgba(216,225,231,1) 50%,rgba(224,239,249,1) 100%);
+    background: url(../img/clock.ico), linear-gradient(to right,  rgba(242,246,248,1) 0%,rgba(216,225,231,1) 50%,rgba(224,239,249,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f6f8', endColorstr='#e0eff9',GradientType=1 );
+    background-size: contain;
+} 
+*/
+
+/* Настройка стиля для логотипа */
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* cursor: pointer; */
+  margin: 10px auto;
+  padding: 10px 0;
+  /*Отступ снизу */
+}
+
+/* Настройка отображение вида кнопок 
+Этот класс мы создали ранее
+background-color:var(--color1); //установка начального значения
+cursor: pointer; - изменение при наведении курсора
+    display: flex;
+    justify-content: center;
+    align-items: center;
+margin: 30px auto; - отступ сверху 30px, по бокам auto
+transition: all 0.3s ease - анимация при наведении
+*/
+.Btn1 {
+  background-color: transparent;
+  width: 230px;
+  height: 45px;
+  /* border-top-left-radius: 10%; */
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  cursor: pointer;
+  /* margin: 30px auto; */
+  transition: all 0.3s ease;
+}
+
+/* Настройка отображение вида кнопки при наведении курсора 
+меняем цвет на color2
+*/
+.Btn1:hover {
+  background-color: var(--color2);
+  color: var(--color1);
+}
+
+/* Настройка отображение пользовательского шрифта*/
+.user_font {
+  font: 40px Impact;
+}
+
+
+/* Настройка отображение пользовательского шрифта*/
+.font_navi {
+  font: 16px Georgia;
+  /* margin: auto;
+  justify-content: center;
+  padding: 3px 20px;  Отступ снизу */
+}
+
+/***************Управление часами ***********************/
+/* .clock
+{
+  margin: 0mm;
+  max-width: 250px;
+  min-width: 250px;
+  /* background: white; */
+/* justify-content: center; */
+/* text-align: center; */
+/* font: 40px Impact; */
+/* padding: 5px 10px;  Отступ снизу */
+/* padding: 500px; */
+/* font-family: 'Impact', sans-serif;
+  font-size: 40px; */
+/* /* padding: 100px; 
+  font-weight: bold;
+  border-top: 10px solid #55c49f;
+  margin-top: 100px; 
+}  */
+
+
+/*************** Стиль digital Clock ***********************/
+#clock {
+  margin: auto;
+  max-width: 390px;
+  min-width: 250px;
+  font-family: Orbitron, Sans-serif, Arial;
+  font-weight: bold;
+  color: #a52a2a;
+  font-size: 50px;
+  text-align: center;
+  /* padding-top: 40px;
+  padding-bottom: 40px; */
+}
+
+/************************************************************/
+
+#dayOfWeek {
+  display: flex;
+  justify-content: center;
+  font-weight: normal;
+  font-size: 20px;
+  color: #a52a2a;
+  padding: 20px 10;
+  /*Отступ снизу */
+}
+
+/***************Управление часами ***********************/
+#controls {
+  border: 10px solid blue;
+  margin: 10px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 150px;
+  background-color: #333;
+  height: 400px;
+  color: white;
+  padding: 20px 10px;
+}
+
+/* #controls > div {
+    margin:4px 0 10px;
+  } */
+/*********************************************************/
+.title {
+  font: 22px Impact;
+  font-size: 22px;
+  color: white;
+  text-transform: uppercase;
+  line-height: 1.5;
+  text-align: center;
+  position: relative;
+}
+
+.title span {
+  background: #0a58ca;
+  display: inline-flexbox;
+  padding: 0 10px;
+  position: relative;
+}
+
+.title:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  /* ширина линии */
+  background: #f3f4f2;
+  /* цвет линии */
+}
+
+/*********************************************************/
+.btn-primary{
+
+  background-color: red;
+  
+  color: white;
+  
+  }
+  
+  .btn-primaru:hover,
+  
+  .btn-primary:focus,
+  
+  .btn-primary:visited{
+  
+  background-color: green;
+  
+  color: white;
+  
+  }
+/*********************************************************/
+
+.R {
+  background-color: #a52a2a;
+  color: white;
+}
+
+.G {
+  background-color: #24943A;
+  color: white;
+}
+
+
+.D {
+  color: #a52a2a;
+  text-align: center;
+  /* background-color: #e83a3a; */
+}
+
+.E {
+  color: green;
+  text-align: center;
+  /* background-color:#24943A; */
+}
+
+
+.button {
+  color: white;
+  font-size: 20px;
+  border-radius: 5px;
+  /* background-color: #24943A; */
+  width: 200px;
+  padding: 5px 20px;
+  border: 0px;
+}
+
+.bg {
+  color: #8fbd35;
+  /* padding: 20px; */
+}

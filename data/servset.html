@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <!-- мета тег viewport для адаптивной работы на всех устройствах -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimeStationSetup</title>
+  <!--link favicon icon to web -->
+  <link rel="shortcut icon" href="img/clock.png" type="image/x-icon">
+  <!--link Bootstrap CSS -->
+  <link rel="stylesheet bg-dark" href="css/bootstrap.min.css">
+  <!-- link fontello icon -->
+  <!-- <link rel="stylesheet" href="css/fontello.css "> -->
+  <!-- link my style.css -->
+  <link rel="stylesheet" href="css/style.css">
+  <script src='js/user.js'></script>
+  <!-- <script src='js/bootstrap.bundle.js'></script> -->
+</head>
+
+<!-- body - Основное содержисое страницы. Класс bg-dark для определения темы Bootstrap-->
+
+<body class="bg-dark" onload="StartService('config')">
+  <header class="mb-auto">
+    <!-- создаем блочный контейнер "div" в котором все будет находиться. Контейнер ограничивает ширину -->
+    <div class="container-sm">
+      <!-- создаем строку в которой будут находиться  колонки -->
+      <div class="row">
+        <div class="mt-3 col-12">
+          <div class="title">
+            <span>Сервисный режим</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <ul class="nav nav-tabs justify-content-center" style="font: 16px Verdana;">
+          <li class="nav-item">
+            <a class="nav-link " href="servinfo.html">INFO </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="servnet.html">WIFI</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="servset.html">SETTINGS</a>
+          </li>
+          <!-- <li class="nav-item">
+            <a class="nav-link" href="#">DEBUG</a>
+          </li> -->
+          <li class="nav-item">
+            <a class="nav-link" href="/update">UPDATE</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">BACK</a>
+          </li>
+
+        </ul>
+      </div>
+
+  </header>
+
+  <!-- main Основное содержание страницы -->
+  <main class="mt-3 mx-auto">
+    <!-- 1 Контейнер - main  -->
+    <div class="container-fluid text-white">
+      <div class="row">
+        <div class="col mt-3">
+          <div class="p-4 rounded border border-1 border-primary">
+            <div class="title" style="color: white; font: 18px Verdana;">
+              <span>Время устройства:</span>
+            </div>
+            <div class="mt-3 text-white text-center" style="font: 40px Times New Roman;">
+              <output class="E mt-2 text-center" id="t1" value="NA"> </output>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm">
+          <!-- Serial number -->
+          <div class="col mt-3">
+            <div class="p-4 rounded border border-1 border-primary">
+              <div class="title" style="color: white; font: 18px Verdana;">
+                <span>Серийный номер:</span>
+              </div>
+              <div class="mt-3 text-white text-center" style="font: 20px Times New Roman ;">
+
+                <div class="mt-3 text-white text-center" style="font: 20px Times New Roman;">
+                  <!-- <output class="E mt-2 text-center" id="sn" value="NA"> </output> -->
+                  Укажите серийный номер
+                  <div class="input-group mt-2">
+
+                    <input type="number" class="mt-2 form-control text-white text-center bg-dark"
+                      style="font: 22px Times New Roman ;" id="sn" onkeyup="this.value = this.value.replace(/[^\d]/g,'');">
+                  </div>
+
+                  <div class="col mt-3 d-grid gap-2">
+                    <button type="submit " class="btn btn-outline-success" id="BTNSaveSN" onclick="ButtonSaveSN()"> Сохранить
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- NTP Server settings -->
+          <!-- <div class="col">
+            <div class="mt-3 p-4 border rounded border border-1 border-primary">
+              <div class="title" style="color: white; font: 18px Verdana;">
+                <span>NTP:</span>
+              </div>
+              <div class="mt-3 text-white text-center" style="font: 20px Times New Roman ;">
+                <div class="mt-3 text-white text-center" style="font: 24px Times New Roman;">
+                   Сервер синхронизации: 
+                  <output class="E mt-2 text-center" id="" value="NA"> </output> 
+
+                  <div class="input-group mt-2">
+                    <input type="url" class="form-control text-white text-center bg-dark"
+                      style="font: 22px Times New Roman ;" id="ntpurl" placeholder="">
+                  </div>
+                  <div class="col d-grid gap-2">
+                    <button type="button" class="mt-3 btn btn-outline-success" onclick="ButtonNTPSynch()">
+                      Синхронизировать</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div> -->
+        </div>
+
+        <div class="col-sm">
+
+          <!-- Two Bloks. GPS and RS485 parametrs  -->
+          <div class="container-md mt-3 px-0">
+            <div class="row gx-3 gy-3">
+              <div class="col">
+                <div class="p-4 border rounded border border-1 border-primary">
+                  <div class="title" style="color: white; font: 18px Verdana;">
+                    <span>Время синхронизации c GPS:</span>
+                  </div>
+                  <div class="input-group mt-3">
+                    <input type="time" class="form-control text-white text-center bg-dark" id="TimSGPS" name="time" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- One Blok. Battery control settings -->
+          <div class="col mt-3">
+            <div class="p-4 rounded border border-1 border-primary">
+              <div class="title" style="color: white; font: 18px Verdana;">
+                <span>Аккумулятор:</span>
+              </div>
+              <div class="mt-3 text-white text-center" style="font: 20px Times New Roman;">
+                Критическое значение разряда: %
+              </div>
+              <div class="input-group mt-2">
+                <input type="number" class="form-control text-white text-center bg-dark" id="VBatMIN" placeholder=""
+                  aria-label=" " aria-describedby="button-addon1" min="20" max="80" step="1"
+                  onkeyup="this.value = this.value.replace(/[^\d]/g,'');">
+              </div>
+            </div>
+          </div>
+
+          <!-- One Blok. < Current control settings > -->
+          <!-- <div class="col mt-3">
+            <div class="p-4 rounded border border-1 border-primary">
+              <div class="title" style="color: white; font: 18px Verdana;">
+                <span>Защита по току:</span>
+              </div>
+              <div class="mt-3 text-white text-center" style="font: 24px Times New Roman;">
+                Уровень тока (mA):
+              </div>
+              <div class="input-group mt-2">
+                <input type="number" class="form-control text-white text-center bg-dark" id="ILimit" placeholder=""
+                  aria-label=" " aria-describedby="button-addon1" min="50" max="300" step="50">
+              </div>
+            </div>
+          </div> -->
+
+        </div>
+
+        <div class="col-sm">
+          <!-- Two Bloks. GPS and RS485 parametrs  -->
+          <div class="container-md mt-3 px-0">
+
+            <div class="row gx-3 gy-3">
+
+              <div class="col">
+                <div class="p-4 border rounded border border-1 border-primary">
+                  <div class="title" style="color: white; font: 18px Verdana;">
+                    <span>GPS:</span>
+                  </div>
+                  <div class="mt-3 text-white text-center" style="font: 22px Times New Roman ;">
+                    Режим:
+                    <div class="mt-2 d-grid gap-2 d-md-flex dropdown justify-content-md-center "
+                      style="padding-top: 10px;">
+                      <div class="input-group mb-3">
+                        <select class="form-select text-white text-center bg-dark" id="GPSMode"
+                          aria-label="Example select with button addon">
+                          <option value="2">ALWAYS</option>
+                          <option value="1">ONCE</option>
+                          <option value="0">OFF</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col">
+                <div class="p-4 rounded border border-1 border-primary">
+                  <div class="title" style="color: white; font: 18px Verdana;">
+                    <span>RS-485:</span>
+                  </div>
+                  <div class="mt-3 text-white text-center" style="font: 22px Times New Roman ;">
+                    Режим:
+                    <div class="mt-2 d-grid gap-2 d-md-flex dropdown justify-content-md-center "
+                      style="padding-top: 10px;">
+                      <div class="input-group mb-3">
+                        <select class="form-select text-white text-center bg-dark" id="RSMode"
+                          aria-label="Example select with button addon">
+                          <option value="1">ВКЛ</option>
+                          <option value="0">ОТКЛ</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Two Bloks. LIGHT and Calibration parametrs  -->
+          <div class="container-md mt-3 px-0">
+            <div class="row gx-3 gy-3">
+              <div class="col">
+                <div class="p-4 border rounded border border-1 border-primary">
+                  <div class="title" style="color: white; font: 18px Verdana;">
+                    <span>LIGHT:</span>
+                  </div>
+                  <div class="mt-2 text-white text-center" style="font: 22px Times New Roman ;">
+                    <output class="E mt-2 text-center" id="BrST" value="NA"> </output>
+                    <div class="col d-grid gap-2">
+                      <button type="button" id="BTNBL" class="mt-3 btn btn-success" onclick="Backlight()">
+                        <output class="text" id="BTNBLT"></output>
+                      </button>
+                        </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm">
+
+          <!-- Two Bloks.Current sensor parametrs calibration  -->
+          <div class="container-md mt-3  border rounded border border-1 border-warning">
+            <div class="mt-2 mb-3 row gx-3 gy-3">
+              <div class="title" style="color: white; font: 18px Verdana;">
+                <span>Калибровка параметров датчика тока:</span>
+              </div>
+              <div class="col d-grid gap-2">
+                <button type="button" class="mt-2 mb-3 btn btn-outline-warning" onclick="ButtonDebug('current')">Включить онлайн мониторинг
+                </button>
+              </div>
+              <div class="mt-2 text-white text-center" style="font: 24px Times New Roman;">
+                Текущее значение :
+                <output class="E mt-2 text-center" id="current" value="NA"> </output>
+              </div>
+
+              <div class="col">
+                <div class="p-4 border rounded border border-1 border-primary">
+                  <div class="title" style="color: white; font: 14px Verdana;">
+                    <span>Чувствительность:</span>
+                  </div>
+                  <div class="mt-3 text-white text-center" style="font: 22px Times New Roman ;">
+                    <div class="mt-3 text-white text-center" style="font: 24px Times New Roman;">
+                      Уровень: mv/A
+                    </div>
+                    <div class="input-group mt-2 mb-2">
+                      <select class="form-select text-white text-center bg-dark" id="i_sens"
+                        aria-label="Example select with button addon">
+                        <option value="2">ACS_20</option>
+                        <option value="1">ACS_10</option>
+                        <option value="0">ACS_05</option>
+                      </select>
+                    </div>
+                    <!-- <div class="input-group mt-2">
+                      <input type="number" class="form-control text-white text-center bg-dark" id="i_sens"
+                        placeholder="" aria-label=" " aria-describedby="button-addon1" min="1" max="200" step="1">
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+
+              <div class="col">
+                <div class="p-4 rounded border border-1 border-primary">
+                  <div class="title" style="color: white; font: 14px Verdana;">
+                    <span>Установка нуля:</span>
+                  </div>
+                  <div class="mt-3 text-white text-center" style="font: 22px Times New Roman ;">
+                    <div class="mt-3 text-white text-center" style="font: 24px Times New Roman;">
+                      Уровень: mv
+                    </div>
+                    <div class="input-group mt-2">
+                      <input type="number" class="form-control text-white text-center bg-dark" id="i_cor"
+                        aria-describedby="button-addon1" min="0" max="2000" step="1"
+                        onkeyup="this.value = this.value.replace(/[^\d]/g,'');">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+                      <!-- One Blok. < Current control settings > -->
+          <div class="col mt-3">
+            <div class="p-4 rounded border border-1 border-primary">
+              <div class="title" style="color: white; font: 18px Verdana;">
+                <span>Защита по току:</span>
+              </div>
+              <div class="mt-3 text-white text-center" style="font: 24px Times New Roman;">
+                Уровень тока (mA):
+              </div>
+              <div class="input-group mt-2">
+                <input type="number" class="form-control text-white text-center bg-dark" id="ILimit" placeholder=""
+                  aria-label=" " aria-describedby="button-addon1" min="50" max="300" step="50"
+                  onkeyup="this.value = this.value.replace(/[^\d]/g,'');">
+              </div>
+            </div>
+          </div>
+
+            <div class="col d-grid gap-2">
+              <button type="button" class="mt-2 mb-3 btn btn-outline-success" onclick="ButtonCurSensUPD(this)">Применить
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- <div class="col mt-3">
+
+          <div class="p-4 rounded border border-1 border-primary">
+            <div class="title" style="color: white; font: 16px Verdana;">
+              <span>Датчик тока:</span>
+            </div>
+            <div class="mt-3 text-white text-center" style="font: 24px Times New Roman;">
+              Действующее значение :
+              <output class="E mt-2 text-center" id="current" value="NA"> </output>
+            </div>
+            <div class="col mt-2">sensetivity (mV/A) </div>
+            <div class="input-group mt-1">
+              <button class="btn btn-outline-secondary" type="button" id="button-addon1"
+                onclick="CurSensUpdate(this)">Установить</button>
+              <input type="number" class="form-control text-white text-center bg-dark" id="i_sens" placeholder=""
+                aria-label=" " aria-describedby="button-addon1" min="1" max="500" step="1">
+            </div>
+          </div>
+
+        </div> -->
+
+        <div class="col mt-3">
+          <div class="col">
+            <div class="p-4 rounded border border-1 border-primary">
+              <div class="title" style="color: white; font: 18px Verdana;">
+                <span>Датчик освещенности:</span>
+              </div>
+              <div class="mt-2 text-white text-center" style="font: 24px Times New Roman;">
+                Уровень ADC:
+                <output class="E mt-2 text-center" id="light" value="NA"> </output>
+              </div>
+              <div class="col mt-2">Порог включения: </div>
+              <!-- <input type="range" class="form-range" id="sens"> -->
+              <div class="input-group mt-1">
+                <button class="btn btn-outline-secondary" type="button" id="button-addon1"
+                  onclick="SensorLimitUpdate(this)">Установить</button>
+                <input type="number" class="form-control text-white text-center bg-dark" id="sens" placeholder=""
+                  aria-label=" " aria-describedby="button-addon1" min="100" max="3000" step="100"
+                  onkeyup="this.value = this.value.replace(/[^\d]/g,'');">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm mt-3">
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end" style="padding-bottom: 20px;">
+            <div class="d-grid d-md-flex justify-content-md-center" style="padding-bottom: 20px;">
+              <button type="submit" class="btn btn-outline-success" onclick="ButtonSaveService()"> Сохранить
+                настройки
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <div class="conteiner-md text-center text-white-50 margin-bottom">
+    <hr> <!-- hr Разделитель -->
+    <div>
+      created by <b>EmbedDev </b> for <a href="https://retra.pro/" class="text-white"> RETRA</a>
+    </div>
+    <!-- serial_number -->
+    <i>sn:</i>
+    <output class="text-white" id="snum" value="NA"> </output>
+    <!-- firmware version: -->
+    <i>fw:</i>
+    <output class="text-white" id="fw" value="NA"></output>
+    </p>
+  </div>
+
+</body>
+
+</html>
+
+
+
+
+<!-- <div class="conteiner-fluid text-center text-white-50 margin-bottom">
+    <hr> hr Разделитель 
+    <p>
+     p - paragraf или абзац 
+      created by <b>EmbedDev </b>  b - bold полужирный текст  for <a href="https://retra.pro/"
+        class="text-white"> RETRA</a>
+    </p>
+  </div> -->
+
+
+
+
+<!-- Контейнер  -->

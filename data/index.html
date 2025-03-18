@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="EmbedDev">
+    <title>TimeStationSetup</title>
+    <link rel="shortcut icon" href="img/clock.png" type="image/x-icon">
+    <link rel="stylesheet bg-dark" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src='js/user.js'></script>
+    <script src='js/clock.js'></script>
+    <script src='js/bootstrap.bundle.min.js'></script>
+</head>
+
+<body class="bg-dark" onload="StartIndex()">
+    <header class="mb-auto text-white">
+        <div class="container-sm">
+            <div class="row">
+                <div class="mt-3 col-12">
+                    <h2 class="pb-3 user_font text-center text-white">Мастер настройки Первичных часов <p
+                            class="text-center text-white-50"> 0120.001</p>
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="mt-3 mx-auto">
+        <div class="container-fluid">
+            <div class="row justify-content-md-start">
+                <div class="col">
+                    <nav>
+                        <div class="mt-5 d-flex flex-column text-white bg-dark" style="width: 390px;">
+
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col">
+                                        <div id="clock" style="margin-top: 20px; "> </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row justify-content-center mt-5 ms-3 me-5 ">
+                                <hr style="margin-left: 10%; margin-right: 10%;"> 
+                                <span class="user_font text-center pb-3">Настройки</span>
+                                <hr style="margin-left: 10%; margin-right: 10%;">
+                            </div>
+
+                            <ul class="px-5 nav nav-pills flex-column mb-auto">
+
+                                <li class="nav-item">
+                                    <div class="Btn1">
+                                        <img src="img/file.png" style="width: 30px; height: 30px;">
+                                        <a href="index.html" class="nav-link text-white " aria-current="page">
+                                            Состояние устройства
+                                        </a>
+                                    </div>
+                                </li>
+
+                                <li class="nav-item">
+                                    <div class="Btn1">
+                                        <img src="img/clock.png" style="width: 30px; height: 30px;">
+                                        <a href="timeset.html" class="nav-link text-white " aria-current="page">
+                                            Настройки часов
+                                        </a>
+                                    </div>
+                                </li>
+
+                                <li>
+                                    <div class="Btn1">
+                                        <img src="img/system.png" style="width: 30px; height: 30px; ">
+                                        <a href="system.html" class="nav-link text-white">
+                                            Настройки системы
+                                        </a>
+                                    </div>
+                                </li>
+
+                                <!-- <li>
+                                    <div class="Btn1">
+                                        <img src="img/reset.png" style="width: 30px; height: 30px;">
+                                        <a href="#" class="nav-link text-white" onclick="ButtonReboot()">
+                                            Перезагрузка
+                                        </a>
+                                    </div>
+                                </li> -->
+                            </ul>
+                    </nav>
+                </div>
+
+                <div class="col mx-auto flex-column mb-auto">
+                    <div class="container-md text-white text-center">
+                        <div class="row g-3">
+                            <div class="mt-5 container-md text-white text-center">
+                                <div class="col mt-2 mx-auto rounded border border- border-primary">
+                                    <div class="mt-2 mx-auto p-4 col">
+                                        <div class="mt-1 title" style="color: white; font: 18px Verdana;">
+                                            <span>1. Состояние:</span>
+                                        </div>
+                                        <table class="table table-dark table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Модуль:</th>
+                                                    <th scope="col">Статус:</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <th scope="row">Вторичные часы: </th>
+                                                    <td>
+                                                        <div>
+                                                            <output class="E" style="font: 18px Verdana;" id="ClockST1"
+                                                                value="NA">
+                                                            </output>
+
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">Подсветка</th>
+                                                    <td>
+                                                        <div>
+                                                            <output class="E" id="BrST" value="NA"
+                                                                style="color:white; text-align: center;"> </output>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                        <a href="timeset.html" class="mt-2 btn btn-secondary" value="NA">Перейти к
+                                            настройке</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3 container-md">
+                                <div class="col p-2 rounded border border-1 border-primary">
+                                    <div class="mx-auto p-4 col">
+                                        <div class="title" style="color: white; font: 18px Verdana;">
+                                            <span>2. Режим работы:</span>
+                                        </div>
+                                        <div class="mt-2 text-white text-start" style="font:16px Verdana; ">
+                                            <table class="table table-dark">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col"> </th>
+                                                        <th scope="col">Параметр:</th>
+                                                        <th scope="col">Состояние:</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <th scope="row">
+                                                            <img src="img/thunder.png"
+                                                                style="width: 20px; height: 20px;">
+                                                        </th>
+                                                        <td>
+                                                            Импульс:
+                                                        </td>
+                                                        <td>
+                                                            <div>
+                                                                <output class="E ms-2" id="volt1" value="NA">
+                                                                </output>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <th scope="row">
+                                                            <img src="img/energy.png"
+                                                                style="width: 20px; height: 20px;">
+                                                        </th>
+                                                        <td>
+                                                            Режим:
+                                                        </td>
+                                                        <td>
+                                                            <div>
+                                                                <output class="E ms-2" id="PwrST" value="NA">
+                                                                </output>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <th scope="row">
+                                                            <img src="img/battery20.png"
+                                                                style="width: 20px; height: 20px;">
+                                                        </th>
+                                                        <td>
+                                                            АКБ:
+                                                        </td>
+                                                        <td>
+                                                            <div>
+                                                                <output class="E ms-2" id="voltage" value="NA"></output>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <th scope="row">
+                                                            <img src="img/temp.png" style="width: 20px; height: 20px;">
+                                                        </th>
+                                                        <td>
+                                                            Температура:
+                                                        </td>
+                                                        <td>
+                                                            <div>
+                                                                <output class="E ms-2" id="temperature"
+                                                                    value="NA"></output>
+                                                                ℃
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+                                                </tbody>
+                                            </table>
+
+                                            <div class="mt-3 title" style="color: white; font: 18px Verdana;">
+                                                <span>3.WiFi:</span>
+                                            </div>
+
+                                            <div class="mt-2 text-white text-start" style="font:16px Verdana;">
+                                                <table class="table table-dark">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Параметр:</th>
+                                                            <th scope="col">Состояние:</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+
+                                                        <tr>
+                                                            <td>
+                                                                Сеть:
+                                                            </td>
+                                                            <td>
+                                                                <div>
+                                                                    <output class="E ms-2" id="ssid" value="NA">
+                                                                    </output>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td>
+                                                                IP адрес:
+                                                            </td>
+                                                            <td>
+                                                                <div>
+                                                                    <output class="E ms-2" id="WiFIP"
+                                                                        value="NA"></output>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Консоль отладки -->
+                                <!-- 2 Блока. -->
+                                <div class="container-md mt-2 px-0">
+                                    <div class="row mt-1 gx-3 gy-3">
+                                        <div class="col">
+                                            <div class="p-4 border rounded border border-1 border-primary">
+                                                <div class="title" style="color: white; font: 18px Verdana;">
+                                                    <span>GPS:</span>
+                                                </div>
+                                                <div class="mt-3 text-white text-center"
+                                                    style="font: 22px Times New Roman ;">
+                                                    <!-- STATUS: -->
+                                                    <output class="E mt-2 text-center" id="GPSFIX" value="NA"> </output>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col">
+                                            <div class="p-4 rounded border border-1 border-primary">
+                                                <div class="title" style="color: white; font: 18px Verdana;">
+                                                    <span>RS-485:</span>
+                                                </div>
+                                                <div class="mt-3 text-white text-center"
+                                                    style="font: 22px Times New Roman;">
+                                                    <!-- Линия - 485: -->
+                                                    <output class="E mt-2 text-center" id="RS485" value="NA"> </output>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 2 Блока. -->
+                                <!-- END ROW -->
+
+                                <div class="mt-2 p-0 container-fluid ">
+                                    <div class="row-8 ">
+                                        <div class="d-grid gap-2 d-md-flex justify-content-md-between"
+                                            style="padding-bottom: 20px;" >
+
+                                            <button class="btn btn-success mt-2" type="button" id="btnPRW" 
+                                                onclick="ButtonIDLE()">
+                                                <output class="text" id="btnPWRtext"></output>
+                                                </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- END CONTAINER -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="conteiner-md text-center text-white-50 margin-bottom">
+        <hr>
+        <!-- <div>
+            created by <b>EmbedDev </b> for <a href="https://retra.pro/" class="text-white"> RETRA</a>
+        </div> -->
+        <i>sn:</i>
+        <output class="text-white" id="sn" value="NA"> </output>
+        <i>fw:</i>
+        <output class="text-white" id="firmware" value="NA"></output>
+        </p>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <!-- мета тег viewport для адаптивной работы на всеех устройствах -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimeStationSetup</title>
+  <!--link favicon icon to web -->
+  <link rel="shortcut icon" href="img/clock.png" type="image/x-icon">
+  <!--link Bootstrap CSS -->
+  <!-- <link rel="stylesheet bg-dark" href="css/bootstrap.css"> -->
+  <link rel="stylesheet bg-dark" href="css/bootstrap.min.css">
+  <!-- link my style.css -->
+  <link rel="stylesheet" href="css/style.css">
+  <script src='js/user.js'></script>
+</head>
+
+
+
+<body class="bg-dark" onload="StartWiFi()">
+  <header class="mb-auto">
+    <div class="container-sm">
+      <div class="row">
+        <div class="mt-3 col-12">
+          <div class="title">
+            <span>Сервисный режим</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <ul class="nav nav-tabs justify-content-center" style="font: 16px Verdana;">
+          <li class="nav-item">
+            <a class="nav-link " href="servinfo.html">INFO </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="servnet.html">WIFI</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="servset.html">SETTINGS</a>
+          </li>
+          <!-- <li class="nav-item">
+            <a class="nav-link" href="#">DEBUG</a>
+          </li> -->
+          <li class="nav-item">
+            <a class="nav-link" href="/update">UPDATE</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">BACK</a>
+          </li>
+        </ul>
+      </div>
+
+  </header>
+
+  <!-- main Основное содержание страницы -->
+  <main class="mt-3 mx-auto">
+    <div class="container-fluid text-white">
+      <div class="row">
+
+        <div class="col-sm">
+          <!-- Контейнер  -->
+          <div class="mt-3 container-md text-white text-center">
+            <div class="row">
+              <div class="col rounded border border-1 border-primary">
+                <div class="mt-3 title" style="color: white; font: 18px Verdana;">
+                  <span>Текущее состояние WiFi:</span>
+                </div>
+                <!-- Таблица состояния WiFi сети -->
+                <div class="mt-2 text-white text-start" style="font:16px Verdana;">
+                  <!-- Таблица состояния -->
+                  <table class="table table-dark">
+                    <thead>
+                      <tr>
+                        <th scope="col">Параметр:</th>
+                        <th scope="col">Состояние:</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+
+                      <tr>
+                        <td>
+                          Режим работы:
+                        </td>
+                        <td>
+                          <div>
+                            <output class="E ms-2" id="WiFiMode" value="NA"></output>
+                          </div>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>
+                          IP адрес:
+                        </td>
+                        <td>
+                          <div>
+                            <output class="E ms-2" id="WiFIP" value="NA"></output>
+                          </div>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>
+                          Сеть:
+                        </td>
+                        <td>
+                          <div>
+                            <output class="E ms-2" id="ssid" value="NA">
+                            </output>
+                          </div>
+                          <!-- <i class="icon-attention icon_style"></i> -->
+                        </td>
+                      </tr>
+
+                      <!-- <tr>
+                        <td>
+                          Уровень сигнала:
+                        </td>
+                        <td>
+                          <div>
+                            <output class="E ms-2" id="signal" value="NA"></output>
+                          </div>
+                        </td>
+                      </tr> -->
+
+                      <!-- <tr>
+                        <td>
+                          MAC :
+                        </td>
+                        <td>
+                          <div>
+                            <output class="E ms-2" id="MAC" value="NA"></output>
+                          </div>
+                        </td>
+                      </tr> -->
+
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- <div class="mt-4 container-md text-white text-center">
+            <div class="row">
+              <div class="col rounded border border-1 border-primary">
+              Выбор режима работы сети WiFi-
+                <div class="mt-4 title" style="color: white; font: 18px Verdana;">
+                  <span>Настройка параметров:</span>
+                </div>
+
+                 <tr>
+                    <td>IP:</td>
+                    <td><input type="number" id="ip1Modal" step="1" min="0" max="255"></td>
+                    <td>.</td>
+                    <td><input type="number" id="ip2Modal" step="1" min="0" max="255"></td>
+                    <td>.</td>
+                    <td><input type="number" id="ip3Modal" step="1" min="0" max="255"></td>
+                    <td>.</td>
+                    <td><input type="number" id="ip4Modal" step="1" min="0" max="255"></td>
+                 </tr> 
+
+                <div class="mt-3 mb-3 text-white text-center" style="font:16px Verdana;">
+                  <div class="input-group">
+                    <span class="input-group-text bg-dark text-white" style="font:16px Verdana;">IP Adress:</span>
+                    <input type="number" aria-label="ip1" id="ip1" class="form-control bg-dark text-white" min="0"
+                      max="255">
+                    <input type="number" aria-label="ip2" id="ip2" class="form-control bg-dark text-white" min="0"
+                      max="255">
+                    <input type="number" aria-label="ip3" id="ip3" class="form-control bg-dark text-white" min="0"
+                      max="255">
+                    <input type="number" aria-label="ip4" id="ip4" class="form-control bg-dark text-white" min="0"
+                      max="255">
+                  </div>
+                </div>
+
+                <div class="mt-3 mb-3 text-white text-center" style="font:16px Verdana;">
+                  <div class="input-group">
+                    <span class="input-group-text bg-dark text-white">GateWay:</span>
+                    <input type="number" aria-label="gw1_name" id="gw1" class="form-control bg-dark text-white" min="0"
+                      max="255">
+                    <input type="number" aria-label="gw2_name" id="gw2" class="form-control bg-dark text-white" min="0"
+                      max="255">
+                    <input type="number" aria-label="gw3_name" id="gw3" class="form-control bg-dark text-white" min="0"
+                      max="255">
+                    <input type="number" aria-label="gw4_name" id="gw4" class="form-control bg-dark text-white" min="0"
+                      max="255">
+                  </div>
+                </div>
+
+
+                <div class="mt-3 mb-3 text-white text-center" style="font:16px Verdana;">
+                  <div class="input-group">
+                    <span class="input-group-text bg-dark text-white">Mask:</span>
+                    <input type="number" aria-label="mk1_name" id="mk1" class="form-control bg-dark text-white" min="0"
+                      max="255">
+                    <input type="number" aria-label="mk2_name" id="mk2" class="form-control bg-dark text-white" min="0"
+                      max="255">
+                    <input type="number" aria-label="mk3_name" id="mk3" class="form-control bg-dark text-white" min="0"
+                      max="255">
+                    <input type="number" aria-label="mk4_name" id="mk4" class="form-control bg-dark text-white" min="0"
+                      max="255">
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div> -->
+        </div>
+
+        <div class="col-sm">
+          <div class="mt-3 p-4 border rounded border border-1 border-primary">
+            <div class="title" style="color: white; font: 18px Verdana;">
+              <span>Network Security:</span>
+            </div>
+            <div class="mt-3 text-white text-center" style="font: 20px Times New Roman ;">
+              <div class="mt-3 text-white text-center" style="font: 24px Times New Roman;">
+                <!-- SSID: -->
+                <label for="apssid">SSID:</label>
+                <div class="input-group mt-2">
+                  <input type="text" class="form-control text-white text-center bg-dark"
+                    style="font: 22px Times New Roman ;" id="apssid" name="netname">
+                </div>
+              </div>
+              <div class="mt-3 text-white text-center" style="font: 24px Times New Roman;">
+                <!-- SSID: -->
+                <label for="username">Password:</label>
+                <div class="input-group mt-2">
+                  <input type="password" class="form-control text-white text-center bg-dark"
+                    style="font: 22px Times New Roman ;" id="appass">
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Контейнер режима работы сети-->
+          <!-- <div class="mt-3 container-md text-white text-center">
+            <div class="row">
+              <div class="col rounded border border-1 border-primary">
+                Выбор режима работы сети WiFi
+                <div class="mt-4 title" style="color: white; font: 18px Verdana;">
+                  <span>Режим работы WiFi :</span>
+                </div>
+
+                <div class="mt-3 mb-3 d-grid gap-3">
+                  <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
+                  <label class="btn btn-outline-primary" for="btnradio1">Точка доступа</label>
+
+                  <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+                  <label class="btn btn-outline-primary" for="btnradio2">Клиент</label>
+                </div>
+
+                 <div class="mt-4 mb-3 text-white text-center" style="font:16px Verdana; ">
+                  <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="btnradio1">Точка доступа</label>
+                  
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="btnradio2">Клиент</label>
+                  
+                  </div> -->
+
+                <!-- <input type="radio" class="btn-check " name="options" id="option1" autocomplete="on" checked
+                    onclick="ButtonWiFiControl(1)">
+                  <label class="btn btn-outline-primary" for="option1">Точка доступа</label>
+
+                  <input type="radio" class="btn-check" name="options" id="option2" autocomplete="off"
+                    onclick="ButtonWiFiControl(2)">
+                  <label class="btn btn-outline-primary" for="option2">Клиент</label> -->
+
+                <!-- <div class="form-check">
+                              <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                              <label class="form-check-label" for="flexRadioDefault1">
+                                Точка доступа
+                              </label>
+                            </div>
+                            <div class="form-check" style="padding-bottom: 20px;">
+                              <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
+                              <label class="form-check-label" for="flexRadioDefault2">
+                                Клиент
+                              </label>
+                            </div> 
+              </div>
+            </div>
+          </div> -->
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm  mt-3">
+          <div class="d-md-flex justify-content-md-end" style="padding-bottom: 20px;">
+            <div class="d-grid d-md-flex justify-content-md-center" style="padding-bottom: 20px;">
+              <button type="submit" class="btn btn-outline-success" onclick="ButtonSaveIP()"> Сохранить настройки
+              <!-- Button trigger modal -->
+              <!-- <button type="submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Launch demo modal -->
+              </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <div class="conteiner-md text-center text-white-50 margin-bottom">
+    <hr> <!-- hr Разделитель -->
+    <div>
+      created by <b>EmbedDev </b> for <a href="https://retra.pro/" class="text-white"> RETRA</a>
+    </div>
+    <!-- serial_number -->
+    <i>sn:</i>
+    <output class="text-white" id="sn" value="NA"> </output>
+    <!-- firmware version: -->
+    <i>fw:</i>
+    <output class="text-white" id="firmware" value="NA"></output>
+    </p>
+  </div>
+
+
+
+  <script defer src="js/bootstrap.bundle.min.js"></script> Bootstrap JS + Popper JS
+</body>
+
+</html>
