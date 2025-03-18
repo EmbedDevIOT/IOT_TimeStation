@@ -1,6 +1,6 @@
 #include "FileConfig.h"
 
-AT24Cxx eep(0x57, 32);
+AT24Cxx eep(ADR_EEPROM, 32);
 
 //////////////////////////////////////////////
 // Loading settings from config.json file   //
@@ -14,70 +14,84 @@ void LoadConfig()
   jsonConfig = configFile.readString();               // загружаем файл конфигурации из EEPROM в глобальную переменную JsonObject
   configFile.close();
 
-  StaticJsonDocument<2048> doc; //  Резервируем памяь для json обекта
+  StaticJsonDocument<1100> doc; //  Резервируем памяь для json обекта
   // Дессиарилизация - преобразование строки в родной объкт JavaScript (или преобразование последовательной формы в параллельную)
   deserializeJson(doc, jsonConfig); //  вызовите парсер JSON через экземпляр jsonBuffer
 
   char TempBuf[15];
 
-  struct _txt
-  {
-    char TN[17];     // car_name
-    uint8_t TNU = 0; // car num
-    bool SW = true;
-  } T;
+  CFG.Ssid = doc["ssid"].as<String>();
+  CFG.Password = doc["pass"].as<String>();
 
-  struct _sys
-  {
-    uint8_t H = 0;
-    uint8_t M = 0;
-    int D = 0;
-    int MO = 0;
-    int Y = 0;
-  } S;
+  doc["d1"] = String(SystemClock.year) + "-" + String(SystemClock.month) + "-" + String(SystemClock.date);
 
-  HWCFG.bright = doc["br"];
-  HWCFG.VOL = doc["vol"];
+  doc["t2"] = String(WatchClock.Hour) + ":" + String(WatchClock.Minute);
 
-  STATE.WiFiEnable = doc["wifi_st"];
+  doc["BrStart"].as<String>().toCharArray(TempBuf, 10);
+  HWCFG.LedStartHour = atoi(strtok(TempBuf, ":"));
+  HWCFG.LedStartMinute = atoi(strtok(NULL, ":"));
 
-  // ColorSet(&col_carnum, doc["c_carnum"]);
-  // ColorSet(&col_date, doc["c_date"]);
-  // ColorSet(&col_day, doc["c_day"]);
-  // ColorSet(&col_tempin, doc["c_tempin"]);
-  // ColorSet(&col_tempout, doc["c_tempout"]);
-  // ColorSet(&col_time, doc["c_time"]);
-  // ColorSet(&col_time, doc["c_speed"]);
+  doc["BrStop"].as<String>().toCharArray(TempBuf, 10);
+  HWCFG.LedFinishHour = atoi(strtok(TempBuf, ":"));
+  HWCFG.LedFinishMinute = atoi(strtok(NULL, ":"));
 
-  // doc["carname"].as<String>().toCharArray(T.TN, 17);
-  // memset(UserText.carname, 0, strlen(UserText.carname));
-  // strcat(UserText.carname, T.TN);
+  doc["TimSGPS"].as<String>().toCharArray(TempBuf, 10);
+  HWCFG.GPSStartHour = atoi(strtok(TempBuf, ":"));
+  HWCFG.GPSStartMin = atoi(strtok(NULL, ":"));
+  // Config.GPSStartSec = atoi(strtok(NULL, ":"));
 
-  // UserText.carnum = doc["carnum"];
+  HWCFG.GMT = doc["tz"];
+  HWCFG.LedOnOFF = doc["LightEN"];
+  HWCFG.LedON = doc["LedON"];
 
-  // doc["date"].as<String>().toCharArray(TempBuf, 15);
-  // S.Y = atoi(strtok(TempBuf, "-"));
-  // S.MO = atoi(strtok(NULL, "-"));
-  // S.D = atoi(strtok(NULL, "-"));
+  HWCFG.L_Lim = doc["sens"];
+  HWCFG.i_sens = doc["i_sens"];
+  HWCFG.T1_ofs = doc["t1_offset"];
 
-  CFG.fw = doc["firmware"].as<String>();
+  // Config.i_cor = doc["i_cor"];
 
-  // UserText.hide_t = doc["hide"];
+  WatchClock.PulseNormal = doc["pulsn"];
+  WatchClock.PulseFast = doc["pulsf"];
+
+  HWCFG.I_PROT = doc["iLimit"];
+  HWCFG.BAT_PROT = doc["batlim"];
+
+  HWCFG.BtnMode = doc["btn"];
+
+  HWCFG.GPSMode = doc["GPSMode"];
+
+  HWCFG.GPSSynh = doc["GPSSyn"];
 
   CFG.IP1 = doc["ip1"];
   CFG.IP2 = doc["ip2"];
   CFG.IP3 = doc["ip3"];
   CFG.IP4 = doc["ip4"];
+  CFG.GW1 = doc["gw1"];
+  CFG.GW2 = doc["gw2"];
+  CFG.GW3 = doc["gw3"];
+  CFG.GW4 = doc["gw4"];
+  CFG.MK1 = doc["mk1"];
+  CFG.MK2 = doc["mk2"];
+  CFG.MK3 = doc["mk3"];
+  CFG.MK4 = doc["mk4"];
 
-  CFG.APPAS = doc["pass"].as<String>();
+  CFG.NTPServer = doc["ntpurl"].as<String>();
+
+  CFG.APSSID = doc["apssid"].as<String>();
+  CFG.APPAS = doc["appass"].as<String>();
 
   CFG.sn = doc["sn"];
+  CFG.fw = doc["firmware"].as<String>();
 
-  CFG.APSSID = doc["ssid"].as<String>();
 
-  HWCFG.T1_off = doc["t1_offset"];
+  WatchClock.ClockST = doc["ClockST1"];
+  WatchClock.Volt = doc["volt1"];
+  // SecondaryClock2.ClockST = doc["ClockST2"];
 
-  CFG.gmt = doc["gmt"];
+  HWCFG.Bright = doc["br"];
+  HWCFG.VOL = doc["vol"];
+
+  STATE.WiFiEnable = doc["wifi_st"];
 }
 
 void ShowLoadJSONConfig()
@@ -86,21 +100,21 @@ void ShowLoadJSONConfig()
 
   Serial.println(F("##############  System Configuration  ###############"));
   Serial.println("-------------------- USER DATA -----------------------");
-  Serial.printf("####  T1_OFFSET: %d \r\n", HWCFG.T1_off);
+  Serial.printf("####  T1_OFFSET: %d \r\n", HWCFG.T1_ofs);
   Serial.println("------------------ USER DATA END----------------------");
   Serial.println();
   Serial.println("---------------------- SYSTEM ------------------------");
-  Serial.printf("####  GMT: %d \r\n", CFG.gmt);
-  sprintf(msg, "####  DATA: %0002d-%02d-%02d", Clock.year, Clock.month, Clock.date);
+  Serial.printf("####  GMT: %d \r\n", HWCFG.GMT);
+  sprintf(msg, "####  DATA: %0002d-%02d-%02d", SystemClock.year, SystemClock.month, SystemClock.date);
   Serial.println(F(msg));
-  sprintf(msg, "####  TIME: %02d:%02d:%02d", Clock.hour, Clock.minute, Clock.second);
+  sprintf(msg, "####  TIME: %02d:%02d:%02d", SystemClock.hour, SystemClock.minute, SystemClock.second);
   Serial.println(F(msg));
   Serial.printf("####  WiFI_PWR: %d \r\n", STATE.WiFiEnable);
   Serial.printf("####  WiFI NAME: %s \r\n",CFG.APSSID);
   Serial.printf("####  WiFI PASS: %s \r\n", CFG.APPAS);
   sprintf(msg, "####  IP: %00d.%00d.%00d.%00d", CFG.IP1, CFG.IP2, CFG.IP3, CFG.IP4);
   Serial.println(F(msg));
-  Serial.printf("####  Brigh: %d \r\n", HWCFG.bright);
+  Serial.printf("####  Brigh: %d \r\n", HWCFG.Bright);
   Serial.printf("####  Volume: %d \r\n", HWCFG.VOL);
   Serial.printf("####  SN: %d", CFG.sn);
   Serial.printf(" FW:");
@@ -116,32 +130,70 @@ void ShowLoadJSONConfig()
 void SaveConfig()
 {
   String jsonConfig = "";
-  StaticJsonDocument<2048> doc;
+  StaticJsonDocument<1100> doc;
 
-  doc["br"] = HWCFG.bright;
-  doc["vol"] = HWCFG.VOL;
-  doc["wifi_st"] = STATE.WiFiEnable;
+  doc["d1"] = String(SystemClock.year) + "-" + ((SystemClock.month < 10) ? "0" : "") + String(SystemClock.month) + "-" + ((SystemClock.date < 10) ? "0" : "") + String(SystemClock.date);
+  doc["t2"] = ((WatchClock.Hour < 10) ? "0" : "") + String(WatchClock.Hour) + ":" + ((WatchClock.Minute < 10) ? "0" : "") + String(WatchClock.Minute);
+  doc["BrStart"] = ((HWCFG.LedStartHour < 10) ? "0" : "") + String(HWCFG.LedStartHour) + ":" + ((HWCFG.LedStartMinute < 10) ? "0" : "") + String(HWCFG.LedStartMinute);
+  doc["BrStop"] = ((HWCFG.LedFinishHour < 10) ? "0" : "") + String(HWCFG.LedFinishHour) + ":" + ((HWCFG.LedFinishMinute < 10) ? "0" : "") + String(HWCFG.LedFinishMinute);
 
-  // doc["c_carnum"] = GetColorNum(&col_carnum);
-  // doc["c_date"] = GetColorNum(&col_date);
-  // doc["c_day"] = GetColorNum(&col_day);
-  // doc["c_tempin"] = GetColorNum(&col_tempin);
-  // doc["c_tempout"] = GetColorNum(&col_tempout);
-  // doc["c_time"] = GetColorNum(&col_time);
-  // doc["c_speed"] = GetColorNum(&col_speed);
+  doc["TimSGPS"] = ((HWCFG.GPSStartHour < 10) ? "0" : "") + String(HWCFG.GPSStartHour) + ":" + ((HWCFG.GPSStartMin < 10) ? "0" : "") + String(HWCFG.GPSStartMin);
 
-  // doc["carname"] = String(UserText.carname);
-  // doc["carnum"] = UserText.carnum;
+  doc["tz"] = HWCFG.GMT;
+
+  doc["GPSMode"] = HWCFG.GPSMode;
+
+  doc["GPSSyn"] = HWCFG.GPSSynh;
+
+  doc["btn"] = HWCFG.BtnMode;
+
+  doc["LightEN"] = HWCFG.LedOnOFF;
+
+  doc["LedON"] = HWCFG.LedON;
+
+  doc["sens"] = HWCFG.L_Lim;
+
+  doc["i_sens"] = HWCFG.i_sens;
+  // doc["i_cor"] = Config.i_cor;
+
+  doc["iLimit"] = HWCFG.I_PROT;
+
+  doc["pulsn"] = WatchClock.PulseNormal;
+  doc["pulsf"] = WatchClock.PulseFast;
+
+  doc["batlim"] = HWCFG.BAT_PROT;
+
   doc["firmware"] = CFG.fw;
+  doc["MAC"] = CFG.MacAdr;
+  doc["sn"] = CFG.sn;
+
+  doc["ssid"] = CFG.Ssid;
+  doc["pass"] = CFG.Password;
+
   doc["ip1"] = CFG.IP1;
   doc["ip2"] = CFG.IP2;
   doc["ip3"] = CFG.IP3;
   doc["ip4"] = CFG.IP4;
-  doc["pass"] = CFG.APPAS;
-  doc["sn"] = CFG.sn;
-  doc["ssid"] = CFG.APSSID;
-  doc["t1_offset"] = HWCFG.T1_off;
-  doc["gmt"] = CFG.gmt;
+  doc["gw1"] = CFG.GW1;
+  doc["gw2"] = CFG.GW2;
+  doc["gw3"] = CFG.GW3;
+  doc["gw4"] = CFG.GW4;
+  doc["mk1"] = CFG.MK1;
+  doc["mk2"] = CFG.MK2;
+  doc["mk3"] = CFG.MK3;
+  doc["mk4"] = CFG.MK4;
+
+  doc["ntpurl"] = CFG.NTPServer;
+  doc["apssid"] = CFG.APSSID;
+  doc["appass"] = CFG.APPAS;
+
+  doc["WiFiMode"] = CFG.WiFiMode;
+
+  doc["ClockST1"] = WatchClock.ClockST;
+  doc["volt1"] = WatchClock.Volt;  
+
+  // doc["ClockST2"] = SecondaryClock2.ClockST;
+
 
   File configFile = SPIFFS.open("/config.json", "w");
   serializeJson(doc, configFile); // Writing json string to file
@@ -167,13 +219,22 @@ void TestDeserializJSON()
   Serial.println("JSON testing comleted");
 }
 
+// Write data to EEPROM
 void EEP_Write()
 {
-  // eep.write(0, CFG.sn);
+  eep.write(0, WatchClock.Hour);
+  eep.write(1, WatchClock.Minute);
+  eep.write(2, WatchClock.Polarity);
+  eep.write(3, WatchClock.Start);
+  eep.write(4, CFG.WiFiMode);       // ???
 }
 
 // Reading data from EEPROM
 void EEP_Read()
 {
-  // CFG.sn = eep.read(0);
+  WatchClock.Hour = eep.read(0);
+  WatchClock.Minute = eep.read(1);
+  WatchClock.Polarity = eep.read(2);
+  WatchClock.Start = eep.read(3);
+  CFG.WiFiMode = eep.read(4);         // ???
 }

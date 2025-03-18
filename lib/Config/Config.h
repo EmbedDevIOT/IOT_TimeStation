@@ -80,11 +80,15 @@
 
 //=======================================================================
 extern MicroDS3231 RTC;
-extern DateTime Clock;
+extern DateTime SystemClock;
 //=======================================================================
 
 //========================== ENUMERATION ================================
-  
+// GPS
+enum GPS
+{
+  GPS_ONCE = 0
+}; 
 // MENU 
 enum menu
 {
@@ -165,21 +169,34 @@ _| |_\  `-'  /   _| |_  _______  _| |_   | |  | | | | | || \__.,| \____) | | |,/
 struct GlobalConfig
 {
   uint16_t sn = 0;
-  String fw = ""; // accepts from setup()
+  String fw = "";                   // accepts from setup()
   String fwdate = "";
   String chipID = "";
+  String MacAdr = "";
+
+  char time[7] = "";
+  char date[9] = "";
+};
+extern GlobalConfig CFG;
+//=======================================================================
+struct NetworkConfig 
+{
+  uint8_t WiFiMode = AccessPoint;    //  WiFi Mode
+  uint8_t TimMin = 0;
+  uint8_t TimSec = 0;
+
+  String NTPServer = "pool.ntp.org";  // niddet url NTP Server (Responce from HTTP websocket)
+
+  String APSSID = "GKTime";           // Access Point ID
+  String APPAS = "gktime";            // Access Point PSW
+
+  String Ssid = "EMBNET2G";           // Client SSID Wifi network
+  String Password = "Ae19co90$!eT";   // Client Passwords WiFi network
+
   String MacAdr = "";
   String NTPServer = "pool.ntp.org";
   String APSSID = "GKTime";
   String APPAS = "gktime";
-
-  String Ssid = "EMBNET2G";           // SSID Wifi network
-  String Password = "Ae19co90$!eT"; // Passwords WiFi network
-
-  int gmt = 0;
-
-  char time[7] = "";
-  char date[9] = "";
 
   byte IP1 = 192;
   byte IP2 = 168;
@@ -194,22 +211,62 @@ struct GlobalConfig
   byte MK3 = 255;
   byte MK4 = 0;
 
-  byte WiFiMode = AccessPoint; // Режим работы WiFi
 };
-extern GlobalConfig CFG;
-//=======================================================================
+extern NetworkConfig NetworkCFG;
 
 //=======================================================================
 struct HardwareConfig
 {
-  uint8_t VOL = 21;      // Volume  1...21
-  int8_t bright = 70;       // Led Brightness 
-  float dsT1 = 0.0;         // Temperature T1 
-  int8_t T1_off = 0;     // Temperature Offset T1 sensor
+  int GMT = 0;
+  uint8_t VOL = 21;           // Volume  1...21
+  int8_t Bright = 70;         // Led Brightness 
+  float dsT1 = 0.0;           // Temperature T1 
+  int8_t T1_ofs = 0;          // Temperature Offset T1 sensor
+  int L_Lim = 1000;           // Light sensor enable limit (Light_ON)
+  int i_sens = 0;             // Current sensor sensetivity 
+  int I_PROT = 200;           // Current Protect
+  uint8_t BatValue  = 0;      // Battery Value (in Percent) 
+  int BAT_PROT = 40;          // Minimum Battery Limit (go to sleep) 
+  // Time Backlight ON / OFF 
+  uint8_t LedStartHour = 18;     
+  uint8_t LedStartMinute = 30;
+  uint8_t LedFinishHour = 18;
+  uint8_t LedFinishMinute = 30;
+  // Time Enable GSP Synhronization 
+  uint8_t GPSStartHour = 14;
+  uint8_t GPSStartMin = 00;
+  uint8_t GPSStartSec = 00;
+  // Flags 
+  uint8_t PwrState = 0;       // Curren Power State (DC power/Battery)
+  uint8_t LedOnOFF = 1;       // Флаг старта работы подсветки
+  uint8_t LedON = 0;          // ????
+  uint8_t GPSSynh = 1;        // ????
+  bool GPSPWR = true;         // Power GPS Module (State:  ON or OFF)
+  // Mode 
+  uint8_t BtnMode = 3;           // Button Mode (???)
+  uint8_t GPSMode = 1;
 
   uint8_t ERRORcnt = 0;
 };
 extern HardwareConfig HWCFG;
+//=======================================================================
+
+//=======================================================================
+// Mechanical Watch
+struct MechanicalClock
+{
+  byte Hour = 0;
+  byte Minute = 0;
+  byte Second = 0;
+  byte Hold_time = 0;
+  byte Polarity = 0;
+  byte Start = 0;
+  byte ClockST = 2;
+  byte Volt = 24;
+  int PulseNormal = 500;
+  int PulseFast = 300;
+};
+extern MechanicalClock WatchClock;
 //=======================================================================
 
 //=======================================================================

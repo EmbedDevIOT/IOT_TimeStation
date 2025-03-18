@@ -153,21 +153,45 @@ void DebugInfo()
     char message[37];
 
     Serial.println(F("!!!!!!!!!!!!!!  DEBUG INFO  !!!!!!!!!!!!!!!!!!"));
-    Serial.printf("Brightness:");
-    Serial.println(HWCFG.bright);
-    sprintf(message, "GMT: %d", CFG.gmt);
+    sprintf(message, "GMT: %d", HWCFG.GMT);
     Serial.println(message);
-    sprintf(message, "RTC Time: %02d:%02d:%02d", Clock.hour, Clock.minute, Clock.second);
+    sprintf(message,"PWR: %d Battery: %3d %", HWCFG.PwrState, HWCFG.BatValue);
     Serial.println(message);
-    sprintf(message, "RTC Date: %4d.%02d.%02d", Clock.year, Clock.month, Clock.date);
+    sprintf(message, "System Time: %02d:%02d:%02d", SystemClock.hour, SystemClock.minute, SystemClock.second);
     Serial.println(message);
-    sprintf(message, "T1: %0.1f T1_OFS: %d", HWCFG.dsT1, HWCFG.T1_off);
+    sprintf(message, "System Date: %4d.%02d.%02d", SystemClock.year, SystemClock.month, SystemClock.date);
+    Serial.println(message);
+    sprintf(message,"Watch Start: %d State: %d", WatchClock.Start, WatchClock.ClockST);
+    Serial.println(message);
+    sprintf(message, "Watch: %02d:%02d:%02d", WatchClock.Hour, WatchClock.Minute, WatchClock.Polarity);
+    Serial.println(message);
+    sprintf(message, "T1: %0.1f T1_OFS: %d", HWCFG.dsT1, HWCFG.T1_ofs);
     Serial.println(message);
     sprintf(message, "VOL: %d", HWCFG.VOL);
     Serial.println(message);
+    // If Preparation to Time Synch - done -> PWR GPS -> ON 
+    if(HWCFG.GPSMode == GPS_ONCE){
+      sprintf(message, "GPS: PWR: %d, MODE: ONCE (to %02d:%02d)", HWCFG.GPSPWR, HWCFG.GPSStartHour, HWCFG.GPSStartMin);
+    }
+    else
+    {
+      sprintf(message, "GPS: PWR: %d, MODE: %d", HWCFG.GPSPWR, HWCFG.GPSMode);
+    }
+    Serial.printf("BTN Mode %1d \r\n", HWCFG.BtnMode);
 
-    Serial.printf("SN:");
-    Serial.println(CFG.sn);
+    // If Power connectet to External VCC -> Show WiFi State 
+    // Else Show elasped time to WiFi OFF 
+    if (HWCFG.PwrState)
+    {
+      sprintf(message, "WiFi EN: %d", STATE.WiFiEnable);
+    }
+    else
+    {
+      sprintf(message, "WiFi EN: %d T:%02d:%02d", STATE.WiFiEnable, NetworkCFG.TimMin,NetworkCFG.TimSec);
+    }
+
+    Serial.println(message);
+    Serial.printf("SN: %d \r\n",CFG.sn);
 
     Serial.println(F("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"));
     Serial.println();
@@ -193,26 +217,26 @@ void ShowFlashSave()
 /***************************************************** ****************************/
 void SystemFactoryReset()
 {
-  CFG.gmt = 3;
-  CFG.WiFiMode = AccessPoint;
-  CFG.APSSID = "GKTime";
-  CFG.APPAS = "gktime";
-  CFG.IP1 = 192;
-  CFG.IP2 = 168;
-  CFG.IP3 = 1;
-  CFG.IP4 = 1;
-  CFG.GW1 = 192;
-  CFG.GW2 = 168;
-  CFG.GW3 = 1;
-  CFG.GW4 = 1;
-  CFG.MK1 = 255;
-  CFG.MK2 = 255;
-  CFG.MK3 = 255;
-  CFG.MK4 = 0;
+  HWCFG.GMT = 3;
+  NetworkCFG.WiFiMode = AccessPoint;
+  NetworkCFG.APSSID = "GKTime";
+  NetworkCFG.APPAS = "gktime";
+  NetworkCFG.IP1 = 192;
+  NetworkCFG.IP2 = 168;
+  NetworkCFG.IP3 = 1;
+  NetworkCFG.IP4 = 1;
+  NetworkCFG.GW1 = 192;
+  NetworkCFG.GW2 = 168;
+  NetworkCFG.GW3 = 1;
+  NetworkCFG.GW4 = 1;
+  NetworkCFG.MK1 = 255;
+  NetworkCFG.MK2 = 255;
+  NetworkCFG.MK3 = 255;
+  NetworkCFG.MK4 = 0;
 
-  HWCFG.bright = 90;
+  HWCFG.Bright = 90;
   HWCFG.VOL = 21;
-  HWCFG.T1_off = 0;
+  HWCFG.T1_ofs = 0;
 
   STATE.WiFiEnable = true;
 }

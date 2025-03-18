@@ -33,8 +33,10 @@ Button btn2(EXT_BUT, INPUT, LOW);
 //=======================================================================
 
 //============================== STRUCTURES =============================
-DateTime Clock;
-GlobalConfig CFG;
+DateTime SystemClock;        // RTC System Clock 
+MechanicalClock WatchClock;  // Mechanical Watch 
+NetworkConfig NetworkCFG;    // General Network Config 
+GlobalConfig CFG;            // General Global Config (Remove) ??? 
 HardwareConfig HWCFG;
 Flag STATE;
 //=======================================================================
@@ -57,7 +59,7 @@ void UART_Recieve_Data(void);
 //=======================       S E T U P       =========================
 void setup()
 {
-    CFG.fw = "0.0.3";
+    CFG.fw = "0.0.4";
     CFG.fwdate = "18.03.2024";
 
     Serial.begin(UARTSpeed);
@@ -85,7 +87,7 @@ void setup()
     {
         RTC.setTime(COMPILE_TIME);
     }
-    Clock = RTC.getTime();
+    SystemClock = RTC.getTime();
     Serial.println(F("RTC...Done"));
 
     // SPIFFS
@@ -105,7 +107,7 @@ void setup()
     vTaskDelay(500 / portTICK_PERIOD_MS);
 
 
-    // LoadConfig();         // Load configuration from config.json files
+    LoadConfig();         // Load configuration from config.json files
     // ShowLoadJSONConfig(); // Show load configuration
 
     // if (SerialNumConfig())
@@ -268,7 +270,7 @@ void HandlerCore1(void *pvParameters)
     for (;;)
     {
         // xSemaphoreTake(i2c_mutex, portMAX_DELAY);
-        Clock = RTC.getTime();
+        SystemClock = RTC.getTime();
         // xSemaphoreGive(i2c_mutex);
 
         DebugInfo();
