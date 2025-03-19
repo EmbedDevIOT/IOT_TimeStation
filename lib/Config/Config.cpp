@@ -43,7 +43,6 @@ boolean SerialNumConfig()
 //=======================================================================
 void UserPresetInit()
 {
-
 }
 
 /**************************************** Scanning I2C bus *********************************************/
@@ -86,10 +85,49 @@ void I2C_Scanning(void)
   delay(5000);
 }
 /*******************************************************************************************************/
-
-/************************ System Initialisation **********************/
-void SystemInit(void)
+void GPIOInit()
 {
+#ifdef DEBUG
+  Serial.print(F("GPIO_Init..."));
+#endif
+
+  pinMode(LED_STG, OUTPUT);
+  digitalWrite(LED_STG, LOW);
+  pinMode(LED_STR, OUTPUT);
+  digitalWrite(LED_STR, LOW);
+  pinMode(LED_CHA, OUTPUT);
+  digitalWrite(LED_CHA, HIGH);
+  pinMode(LED_CHB, OUTPUT);
+  digitalWrite(LED_CHB, HIGH);
+
+#ifdef DEBUG
+  Serial.println(F("DONE"));
+#endif
+}
+
+bool RTCInit(void)
+{
+  bool errRTC = true; 
+#ifdef DEBUG
+  Serial.print(F("RTC_Init..."));
+#endif
+  errRTC = RTC.begin();
+  if (RTC.lostPower())
+  {
+    RTC.setTime(COMPILE_TIME);
+  }
+  SystemClock = RTC.getTime();
+#ifdef DEBUG
+  Serial.println(F("DONE"));
+#endif
+  return errRTC;
+}
+/************************ System Initialisation **********************/
+void SystemStateInit(void)
+{
+#ifdef DEBUG
+  Serial.print(F("System_State_Init..."));
+#endif
   STATE.IDLE = true;
   STATE.DynamicUPD = true;
   STATE.DUPDBlock = false;
@@ -99,10 +137,12 @@ void SystemInit(void)
   STATE.Debug = true;
   STATE.CurDebug = false;
   STATE.WiFiEnable = true;
-  STATE.TTS = false;   // Flag Start Time Speech
+  STATE.TTS = false; // Flag Start Time Speech
   STATE.VolumeUPD = false;
-
   GetChipID();
+#ifdef DEBUG
+  Serial.println(F("DONE"));
+#endif
 }
 /*******************************************************************************************************/
 
@@ -155,13 +195,13 @@ void DebugInfo()
     Serial.println(F("!!!!!!!!!!!!!!  DEBUG INFO  !!!!!!!!!!!!!!!!!!"));
     sprintf(message, "GMT: %d", HWCFG.GMT);
     Serial.println(message);
-    sprintf(message,"PWR: %d Battery: %3d %", HWCFG.PwrState, HWCFG.BatValue);
+    sprintf(message, "PWR: %d Battery: %3d %", HWCFG.PwrState, HWCFG.BatValue);
     Serial.println(message);
     sprintf(message, "System Time: %02d:%02d:%02d", SystemClock.hour, SystemClock.minute, SystemClock.second);
     Serial.println(message);
     sprintf(message, "System Date: %4d.%02d.%02d", SystemClock.year, SystemClock.month, SystemClock.date);
     Serial.println(message);
-    sprintf(message,"Watch Start: %d State: %d", WatchClock.Start, WatchClock.ClockST);
+    sprintf(message, "Watch Start: %d State: %d", WatchClock.Start, WatchClock.ClockST);
     Serial.println(message);
     sprintf(message, "Watch: %02d:%02d:%02d", WatchClock.Hour, WatchClock.Minute, WatchClock.Polarity);
     Serial.println(message);
@@ -169,8 +209,9 @@ void DebugInfo()
     Serial.println(message);
     sprintf(message, "VOL: %d", HWCFG.VOL);
     Serial.println(message);
-    // If Preparation to Time Synch - done -> PWR GPS -> ON 
-    if(HWCFG.GPSMode == GPS_ONCE){
+    // If Preparation to Time Synch - done -> PWR GPS -> ON
+    if (HWCFG.GPSMode == GPS_ONCE)
+    {
       sprintf(message, "GPS: PWR: %d, MODE: ONCE (to %02d:%02d)", HWCFG.GPSPWR, HWCFG.GPSStartHour, HWCFG.GPSStartMin);
     }
     else
@@ -179,19 +220,19 @@ void DebugInfo()
     }
     Serial.printf("BTN Mode %1d \r\n", HWCFG.BtnMode);
 
-    // If Power connectet to External VCC -> Show WiFi State 
-    // Else Show elasped time to WiFi OFF 
+    // If Power connectet to External VCC -> Show WiFi State
+    // Else Show elasped time to WiFi OFF
     if (HWCFG.PwrState)
     {
       sprintf(message, "WiFi EN: %d", STATE.WiFiEnable);
     }
     else
     {
-      sprintf(message, "WiFi EN: %d T:%02d:%02d", STATE.WiFiEnable, NetworkCFG.TimMin,NetworkCFG.TimSec);
+      sprintf(message, "WiFi EN: %d T:%02d:%02d", STATE.WiFiEnable, NetworkCFG.TimMin, NetworkCFG.TimSec);
     }
 
     Serial.println(message);
-    Serial.printf("SN: %d \r\n",CFG.sn);
+    Serial.printf("SN: %d \r\n", CFG.sn);
 
     Serial.println(F("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"));
     Serial.println();

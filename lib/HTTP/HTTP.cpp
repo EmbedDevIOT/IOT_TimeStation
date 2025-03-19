@@ -5,94 +5,105 @@ WebServer HTTP(80);
 // ///////////////////////////////
 // // Initialisation WebServer  //
 // ///////////////////////////////
-// void HTTPinit()
-// {
-//   HTTP.begin();
-//   // ElegantOTA.begin(&HTTP); // Start ElegantOTA
-//   HTTP.on("/update.json", UpdateData);
-//   HTTP.on("/wcupd.json", UpdateStateWC);
-//   HTTP.on("/SysUPD", SystemUpdate);
-//   HTTP.on("/TimeUPD", TimeUpdate);
-//   HTTP.on("/TextUPD", TextUpdate);
-//   HTTP.on("/ColUPD", ColorUpdate);
-//   HTTP.on("/SNUPD", SerialNumberUPD);
-//   HTTP.on("/WCLUPD", WCLogiqUPD);
-//   HTTP.on("/WiFiUPD", SaveSecurity);
-//   HTTP.on("/BRBT", Restart);              // Restart MCU
-//   HTTP.on("/BTTS", TimeToSpeech);         // Tell me Date an Time
-//   HTTP.on("/BDS1", WC1DoorStateToSpeech); // Tell me Door state
-//   HTTP.on("/BDS2", WC2DoorStateToSpeech); // Tell me Door state
-//   HTTP.on("/FW", ShowSystemInfo);
-//   HTTP.on("/BFRST", FactoryReset);               // Set default parametrs.
-//   HTTP.onNotFound([]() {                         // Event "Not Found"
-//     if (!handleFileRead(HTTP.uri()))             // If function  handleFileRead (discription bellow) returned false in request for file searching in file syste
-//       HTTP.send(404, "text/plain", "Not Found"); // return message "File isn't found" error state 404 (not found )
-//   });
-// }
+void HTTPinit()
+{
+#ifdef DEBUG
+    Serial.print(F("HTTP_Init..."));
+#endif
+    HTTP.begin();
+    // ElegantOTA.begin(&HTTP); // Start ElegantOTA
+    HTTP.on("/update.json", UpdateData);
+    //   HTTP.on("/wcupd.json", UpdateStateWC);
+    //   HTTP.on("/SysUPD", SystemUpdate);
+    //   HTTP.on("/TimeUPD", TimeUpdate);
+    //   HTTP.on("/TextUPD", TextUpdate);
+    //   HTTP.on("/ColUPD", ColorUpdate);
+    //   HTTP.on("/SNUPD", SerialNumberUPD);
+    //   HTTP.on("/WCLUPD", WCLogiqUPD);
+    //   HTTP.on("/WiFiUPD", SaveSecurity);
+    //   HTTP.on("/BRBT", Restart);              // Restart MCU
+    //   HTTP.on("/BTTS", TimeToSpeech);         // Tell me Date an Time
+    //   HTTP.on("/BDS1", WC1DoorStateToSpeech); // Tell me Door state
+    //   HTTP.on("/BDS2", WC2DoorStateToSpeech); // Tell me Door state
+    //   HTTP.on("/FW", ShowSystemInfo);
+    //   HTTP.on("/BFRST", FactoryReset);               // Set default parametrs.
+    HTTP.onNotFound([]() {                             // Event "Not Found"
+        if (!handleFileRead(HTTP.uri()))               // If function  handleFileRead (discription bellow) returned false in request for file searching in file syste
+            HTTP.send(404, "text/plain", "Not Found"); // return message "File isn't found" error state 404 (not found )
+    });
+#ifdef DEBUG
+    Serial.println(F("DONE"));
+#endif
+}
 
 // ////////////////////////////////////////
 // // File System work handler           //
 // ////////////////////////////////////////
-// bool handleFileRead(String path)
-// {
-//   if (path.endsWith("/"))
-//     path += "index.html";                    // Если устройство вызывается по корневому адресу, то должен вызываться файл index.html (добавляем его в конец адреса)
-//   String contentType = getContentType(path); // С помощью функции getContentType (описана ниже) определяем по типу файла (в адресе обращения) какой заголовок необходимо возвращать по его вызову
-//   if (SPIFFS.exists(path))
-//   {                                                   // Если в файловой системе существует файл по адресу обращения
-//     File file = SPIFFS.open(path, "r");               //  Открываем файл для чтения
-//     size_t sent = HTTP.streamFile(file, contentType); //  Выводим содержимое файла по HTTP, указывая заголовок типа содержимого contentType
-//     file.close();                                     //  Закрываем файл
-//     return true;                                      //  Завершаем выполнение функции, возвращая результатом ее исполнения true (истина)
-//   }
-//   return false; // Завершаем выполнение функции, возвращая результатом ее исполнения false (если не обработалось предыдущее условие)
-// }
+bool handleFileRead(String path)
+{
+    if (path.endsWith("/"))
+        path += "index.html";                  // Если устройство вызывается по корневому адресу, то должен вызываться файл index.html (добавляем его в конец адреса)
+    String contentType = getContentType(path); // С помощью функции getContentType (описана ниже) определяем по типу файла (в адресе обращения) какой заголовок необходимо возвращать по его вызову
+    if (SPIFFS.exists(path))
+    {                                                     // Если в файловой системе существует файл по адресу обращения
+        File file = SPIFFS.open(path, "r");               //  Открываем файл для чтения
+        size_t sent = HTTP.streamFile(file, contentType); //  Выводим содержимое файла по HTTP, указывая заголовок типа содержимого contentType
+        file.close();                                     //  Закрываем файл
+        return true;                                      //  Завершаем выполнение функции, возвращая результатом ее исполнения true (истина)
+    }
+    return false; // Завершаем выполнение функции, возвращая результатом ее исполнения false (если не обработалось предыдущее условие)
+}
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////////
 // // Функция, возвращающая необходимый заголовок типа содержимого в зависимости от расширения файла //
 // ////////////////////////////////////////////////////////////////////////////////////////////////////
-// String getContentType(String filename)
-// {
-//   if (filename.endsWith(".html"))
-//     return "text/html"; // Если файл заканчивается на ".html", то возвращаем заголовок "text/html" и завершаем выполнение функции
-//   else if (filename.endsWith(".css"))
-//     return "text/css"; // Если файл заканчивается на ".css", то возвращаем заголовок "text/css" и завершаем выполнение функции
-//   else if (filename.endsWith(".js"))
-//     return "application/javascript"; // Если файл заканчивается на ".js", то возвращаем заголовок "application/javascript" и завершаем выполнение функции
-//   else if (filename.endsWith(".png"))
-//     return "image/png"; // Если файл заканчивается на ".png", то возвращаем заголовок "image/png" и завершаем выполнение функции
-//   else if (filename.endsWith(".ttf"))
-//     return "font/ttf"; // Если файл заканчивается на ".png", то возвращаем заголовок "image/png" и завершаем выполнение функции
-//   else if (filename.endsWith(".bmp"))
-//     return "image/bmp";
-//   else if (filename.endsWith(".jpg"))
-//     return "image/jpeg"; // Если файл заканчивается на ".jpg", то возвращаем заголовок "image/jpg" и завершаем выполнение функции
-//   else if (filename.endsWith(".gif"))
-//     return "image/gif"; // Если файл заканчивается на ".gif", то возвращаем заголовок "image/gif" и завершаем выполнение функции
-//   else if (filename.endsWith(".svg"))
-//     return "image/svg+xml";
-//   else if (filename.endsWith(".ico"))
-//     return "image/x-icon"; // Если файл заканчивается на ".ico", то возвращаем заголовок "image/x-icon" и завершаем выполнение функции
-//   return "text/plain";     // Если ни один из типов файла не совпал, то считаем что содержимое файла текстовое, отдаем соответствующий заголовок и завершаем выполнение функции
-// }
+String getContentType(String filename)
+{
+  if (filename.endsWith(".html"))
+    return "text/html"; // Если файл заканчивается на ".html", то возвращаем заголовок "text/html" и завершаем выполнение функции
+  else if (filename.endsWith(".css"))
+    return "text/css"; // Если файл заканчивается на ".css", то возвращаем заголовок "text/css" и завершаем выполнение функции
+  else if (filename.endsWith(".js"))
+    return "application/javascript"; // Если файл заканчивается на ".js", то возвращаем заголовок "application/javascript" и завершаем выполнение функции
+  else if (filename.endsWith(".png"))
+    return "image/png"; // Если файл заканчивается на ".png", то возвращаем заголовок "image/png" и завершаем выполнение функции
+  else if (filename.endsWith(".ttf"))
+    return "font/ttf"; // Если файл заканчивается на ".png", то возвращаем заголовок "image/png" и завершаем выполнение функции
+  else if (filename.endsWith(".bmp"))
+    return "image/bmp";
+  else if (filename.endsWith(".jpg"))
+    return "image/jpeg"; // Если файл заканчивается на ".jpg", то возвращаем заголовок "image/jpg" и завершаем выполнение функции
+  else if (filename.endsWith(".gif"))
+    return "image/gif"; // Если файл заканчивается на ".gif", то возвращаем заголовок "image/gif" и завершаем выполнение функции
+  else if (filename.endsWith(".svg"))
+    return "image/svg+xml";
+  else if (filename.endsWith(".ico"))
+    return "image/x-icon"; // Если файл заканчивается на ".ico", то возвращаем заголовок "image/x-icon" и завершаем выполнение функции
+  return "text/plain";     // Если ни один из типов файла не совпал, то считаем что содержимое файла текстовое, отдаем соответствующий заголовок и завершаем выполнение функции
+}
 // /*******************************************************************************************************/
 
 // /*******************************************************************************************************/
 // // Time data dynamic update
-// void UpdateData()
-// {
-//   String buf = "{";
+void UpdateData()
+{
+  String buf = "{";
 
-//   buf += "\"t\":\"";
-//   buf += ((Clock.hour < 10) ? "0" : "") + String(Clock.hour) + ":" + ((Clock.minute < 10) ? "0" : "") + String(Clock.minute) + "\",";
-//   buf += "\"d\":\"";
-//   buf += String(Clock.year) + "-" + ((Clock.month < 10) ? "0" : "") + String(Clock.month) + "-" + ((Clock.date < 10) ? "0" : "") + String(Clock.date) + "\"";
-//   buf += "}";
+  buf += "\"t\":\"";
+  buf += ((SystemClock.hour < 10) ? "0" : "") + String(SystemClock.hour) + ":" + ((SystemClock.minute < 10) ? "0" : "") + String(SystemClock.minute) + "\",";
+  buf += "\"d\":\"";
+  buf += String(SystemClock.year) + "-" + ((SystemClock.month < 10) ? "0" : "") + String(SystemClock.month) + "-" + ((SystemClock.date < 10) ? "0" : "") + String(SystemClock.date) + "\"";
+  buf += "}";
 
-//   HTTP.send(200, "text/plain", buf);
-// }
+  HTTP.send(200, "text/plain", buf);
+}
 // /*******************************************************************************************************/
-
+// /*******************************************************************************************************/
+void HandleClient()
+{
+  HTTP.handleClient();
+}
+// /*******************************************************************************************************/
 // /*******************************************************************************************************/
 // // Time and Date update
 // void TimeUpdate()
@@ -137,7 +148,7 @@ WebServer HTTP(80);
 
 //   RTC.setTime(Clock);
 //   SaveConfig();
-  
+
 //   Serial.println("Time Update");
 //   HTTP.send(200, "text/plain", "OK");
 // }
@@ -311,12 +322,7 @@ WebServer HTTP(80);
 //   HTTP.send(200, "text/plain", "Serial Number set");
 // }
 // /*******************************************************************************************************/
-// /*******************************************************************************************************/
-// void HandleClient()
-// {
-//   HTTP.handleClient();
-// }
-// /*******************************************************************************************************/
+
 // /*******************************************************************************************************/
 // void SaveSecurity()
 // {

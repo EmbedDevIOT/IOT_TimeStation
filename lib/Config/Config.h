@@ -33,7 +33,7 @@
 #define WorkNET
 
 #define debug(x) Serial.println(x)
-// #define DEBUG
+#define DEBUG
 // #define I2C_SCAN
 
 #define DISABLE 0
@@ -84,11 +84,21 @@ extern DateTime SystemClock;
 //=======================================================================
 
 //========================== ENUMERATION ================================
-// GPS
+enum ClockST
+{
+  STOP = 0,
+  START,
+  HOME
+};
+
+// GPS Work Modes 
 enum GPS
 {
-  GPS_ONCE = 0
+  GPS_OFF = 0,
+  GPS_ONCE,
+  GPS_ALWAYS
 }; 
+
 // MENU 
 enum menu
 {
@@ -184,6 +194,7 @@ struct NetworkConfig
   uint8_t WiFiMode = AccessPoint;    //  WiFi Mode
   uint8_t TimMin = 0;
   uint8_t TimSec = 0;
+  long WiFiPeriod = 0;
 
   String NTPServer = "pool.ntp.org";  // niddet url NTP Server (Responce from HTTP websocket)
 
@@ -296,9 +307,11 @@ extern Flag STATE;
 bool GetWCState(uint8_t num);
 boolean SerialNumConfig(void);
 void UserPresetInit(void);
-void SystemInit(void);     //  System Initialisation (variables and structure)
+void SystemStateInit(void);     //  System Initialisation (variables and structure)
+void GPIOInit(void);            // GPIO Initializing 
+bool RTCInit(void);
 void I2C_Scanning(void);
-void ShowInfoDevice(void); //  Show information or this Device
+void ShowInfoDevice(void);      // Show information or this Device
 void GetChipID(void);
 String GetMacAdr();
 void DebugInfo(void);

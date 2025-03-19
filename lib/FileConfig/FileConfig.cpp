@@ -20,8 +20,8 @@ void LoadConfig()
 
   char TempBuf[15];
 
-  CFG.Ssid = doc["ssid"].as<String>();
-  CFG.Password = doc["pass"].as<String>();
+  NetworkCFG.Ssid = doc["ssid"].as<String>();
+  NetworkCFG.Password = doc["pass"].as<String>();
 
   doc["d1"] = String(SystemClock.year) + "-" + String(SystemClock.month) + "-" + String(SystemClock.date);
 
@@ -62,23 +62,23 @@ void LoadConfig()
 
   HWCFG.GPSSynh = doc["GPSSyn"];
 
-  CFG.IP1 = doc["ip1"];
-  CFG.IP2 = doc["ip2"];
-  CFG.IP3 = doc["ip3"];
-  CFG.IP4 = doc["ip4"];
-  CFG.GW1 = doc["gw1"];
-  CFG.GW2 = doc["gw2"];
-  CFG.GW3 = doc["gw3"];
-  CFG.GW4 = doc["gw4"];
-  CFG.MK1 = doc["mk1"];
-  CFG.MK2 = doc["mk2"];
-  CFG.MK3 = doc["mk3"];
-  CFG.MK4 = doc["mk4"];
+  NetworkCFG.IP1 = doc["ip1"];
+  NetworkCFG.IP2 = doc["ip2"];
+  NetworkCFG.IP3 = doc["ip3"];
+  NetworkCFG.IP4 = doc["ip4"];
+  NetworkCFG.GW1 = doc["gw1"];
+  NetworkCFG.GW2 = doc["gw2"];
+  NetworkCFG.GW3 = doc["gw3"];
+  NetworkCFG.GW4 = doc["gw4"];
+  NetworkCFG.MK1 = doc["mk1"];
+  NetworkCFG.MK2 = doc["mk2"];
+  NetworkCFG.MK3 = doc["mk3"];
+  NetworkCFG.MK4 = doc["mk4"];
 
-  CFG.NTPServer = doc["ntpurl"].as<String>();
+  NetworkCFG.NTPServer = doc["ntpurl"].as<String>();
 
-  CFG.APSSID = doc["apssid"].as<String>();
-  CFG.APPAS = doc["appass"].as<String>();
+  NetworkCFG.APSSID = doc["apssid"].as<String>();
+  NetworkCFG.APPAS = doc["appass"].as<String>();
 
   CFG.sn = doc["sn"];
   CFG.fw = doc["firmware"].as<String>();
@@ -110,9 +110,9 @@ void ShowLoadJSONConfig()
   sprintf(msg, "####  TIME: %02d:%02d:%02d", SystemClock.hour, SystemClock.minute, SystemClock.second);
   Serial.println(F(msg));
   Serial.printf("####  WiFI_PWR: %d \r\n", STATE.WiFiEnable);
-  Serial.printf("####  WiFI NAME: %s \r\n",CFG.APSSID);
-  Serial.printf("####  WiFI PASS: %s \r\n", CFG.APPAS);
-  sprintf(msg, "####  IP: %00d.%00d.%00d.%00d", CFG.IP1, CFG.IP2, CFG.IP3, CFG.IP4);
+  Serial.printf("####  WiFI NAME: %s \r\n",NetworkCFG.APSSID);
+  Serial.printf("####  WiFI PASS: %s \r\n", NetworkCFG.APPAS);
+  sprintf(msg, "####  IP: %00d.%00d.%00d.%00d", NetworkCFG.IP1, NetworkCFG.IP2, NetworkCFG.IP3, NetworkCFG.IP4);
   Serial.println(F(msg));
   Serial.printf("####  Brigh: %d \r\n", HWCFG.Bright);
   Serial.printf("####  Volume: %d \r\n", HWCFG.VOL);
@@ -167,27 +167,27 @@ void SaveConfig()
   doc["MAC"] = CFG.MacAdr;
   doc["sn"] = CFG.sn;
 
-  doc["ssid"] = CFG.Ssid;
-  doc["pass"] = CFG.Password;
+  doc["ssid"] = NetworkCFG.Ssid;
+  doc["pass"] = NetworkCFG.Password;
 
-  doc["ip1"] = CFG.IP1;
-  doc["ip2"] = CFG.IP2;
-  doc["ip3"] = CFG.IP3;
-  doc["ip4"] = CFG.IP4;
-  doc["gw1"] = CFG.GW1;
-  doc["gw2"] = CFG.GW2;
-  doc["gw3"] = CFG.GW3;
-  doc["gw4"] = CFG.GW4;
-  doc["mk1"] = CFG.MK1;
-  doc["mk2"] = CFG.MK2;
-  doc["mk3"] = CFG.MK3;
-  doc["mk4"] = CFG.MK4;
+  doc["ip1"] = NetworkCFG.IP1;
+  doc["ip2"] = NetworkCFG.IP2;
+  doc["ip3"] = NetworkCFG.IP3;
+  doc["ip4"] = NetworkCFG.IP4;
+  doc["gw1"] = NetworkCFG.GW1;
+  doc["gw2"] = NetworkCFG.GW2;
+  doc["gw3"] = NetworkCFG.GW3;
+  doc["gw4"] = NetworkCFG.GW4;
+  doc["mk1"] = NetworkCFG.MK1;
+  doc["mk2"] = NetworkCFG.MK2;
+  doc["mk3"] = NetworkCFG.MK3;
+  doc["mk4"] = NetworkCFG.MK4;
 
-  doc["ntpurl"] = CFG.NTPServer;
-  doc["apssid"] = CFG.APSSID;
-  doc["appass"] = CFG.APPAS;
+  doc["ntpurl"] = NetworkCFG.NTPServer;
+  doc["apssid"] = NetworkCFG.APSSID;
+  doc["appass"] = NetworkCFG.APPAS;
 
-  doc["WiFiMode"] = CFG.WiFiMode;
+  doc["WiFiMode"] = NetworkCFG.WiFiMode;
 
   doc["ClockST1"] = WatchClock.ClockST;
   doc["volt1"] = WatchClock.Volt;  
@@ -226,7 +226,7 @@ void EEP_Write()
   eep.write(1, WatchClock.Minute);
   eep.write(2, WatchClock.Polarity);
   eep.write(3, WatchClock.Start);
-  eep.write(4, CFG.WiFiMode);       // ???
+  eep.write(4, NetworkCFG.WiFiMode);       // ???
 }
 
 // Reading data from EEPROM
@@ -236,5 +236,5 @@ void EEP_Read()
   WatchClock.Minute = eep.read(1);
   WatchClock.Polarity = eep.read(2);
   WatchClock.Start = eep.read(3);
-  CFG.WiFiMode = eep.read(4);         // ???
+  NetworkCFG.WiFiMode = eep.read(4);         // ???
 }

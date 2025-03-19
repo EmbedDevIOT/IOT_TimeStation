@@ -7,23 +7,27 @@
 ///////////////////////////////////
 void WIFIinit(boolean mode)
 {
-   if (CFG.WiFiMode == 0)
+#ifdef DEBUG
+   Serial.println(F("WIFI_Init..."));
+#endif
+
+   if (mode)
    {
       Serial.print("SSID=");
-      Serial.print(CFG.Ssid.c_str());
+      Serial.print(NetworkCFG.Ssid.c_str());
       Serial.print("PASS=");
-      Serial.println(CFG.Password.c_str());
+      Serial.println(NetworkCFG.Password.c_str());
 
-      IPAddress ip(CFG.IP1, CFG.IP2, CFG.IP3, CFG.IP4); // Static IP
-      IPAddress gateway(CFG.GW1, CFG.GW2, CFG.GW3, CFG.GW4);
-      IPAddress subnet(CFG.MK1, CFG.MK2, CFG.MK3, CFG.MK4);
+      IPAddress ip(NetworkCFG.IP1, NetworkCFG.IP2, NetworkCFG.IP3, NetworkCFG.IP4); // Static IP
+      IPAddress gateway(NetworkCFG.GW1, NetworkCFG.GW2, NetworkCFG.GW3, NetworkCFG.GW4);
+      IPAddress subnet(NetworkCFG.MK1, NetworkCFG.MK2, NetworkCFG.MK3, NetworkCFG.MK4);
 
       WiFi.disconnect();
       WiFi.mode(WIFI_STA);
 
       byte tries = 6;
 
-      WiFi.begin(CFG.Ssid.c_str(), CFG.Password.c_str());
+      WiFi.begin(NetworkCFG.Ssid.c_str(), NetworkCFG.Password.c_str());
       WiFi.config(ip, gateway, subnet);
       while (--tries && WiFi.status() != WL_CONNECTED)
       {
@@ -42,11 +46,11 @@ void WIFIinit(boolean mode)
       char tmpssid[15];
       char tmppass[15];
 
-      CFG.APSSID.toCharArray(tmpssid, 15);
-      strcat(tmpssid,"-");
+      NetworkCFG.APSSID.toCharArray(tmpssid, 15);
+      strcat(tmpssid, "-");
       itoa(CFG.sn, tmpssid + strlen(tmpssid), DEC); // склейка Имени WiFi + SN
 
-      CFG.APPAS.toCharArray(tmppass, 15);
+      NetworkCFG.APPAS.toCharArray(tmppass, 15);
 
       IPAddress apIP(192, 168, 1, 1);
       WiFi.disconnect();
@@ -61,6 +65,9 @@ void WIFIinit(boolean mode)
       Serial.println(tmpssid);
       Serial.println(tmppass);
    }
+#ifdef DEBUG
+   Serial.println(F("DONE"));
+#endif
 }
 
 //////////////////////////////////////////////
@@ -80,7 +87,7 @@ void CheckWiFiStatus()
 {
    static int DisconnectTime = 0;
 
-   if ((CFG.WiFiMode == 0) && (WiFi.status() != WL_CONNECTED))
+   if ((NetworkCFG.WiFiMode == 0) && (WiFi.status() != WL_CONNECTED))
    {
       DisconnectTime++;
       if (DisconnectTime == 300) // 5 min
@@ -88,6 +95,51 @@ void CheckWiFiStatus()
          DisconnectTime = 0;
          digitalWrite(LED_STG, LOW);
          WIFIinit();
+      }
+   }
+}
+
+// Переписать под таску FreeRTOS
+void WiFiHandler()
+{
+   static uint32_t tim1000 = 0;
+   char msg[20];
+
+   // Reset WiFi couter if Power ON and set Flags WiFi Enable ON
+   if (HWCFG.PwrState == 1)
+   {
+      STATE.WiFiEnable = true;
+      NetworkCFG.WiFiPeriod = millis();
+      NetworkCFG.TimMin = 0;
+      NetworkCFG.TimSec = 0;
+   }
+
+   // 1min =  1 * 60sec * 1000ms
+   // will work in 10 min (WiFi swift in Disable mode)
+   if (((long)millis() - NetworkCFG.WiFiPeriod > WiFiTimeON * 60 * 1000) && STATE.WiFiEnable && HWCFG.PwrState == 0)
+   {
+      NetworkCFG.WiFiPeriod = millis(); // Reset WiFi Timer Counter
+      STATE.WiFiEnable = false;
+      NetworkCFG.TimMin = 0;
+      NetworkCFG.TimSec = 0;
+      // sec = 0;
+      // min = 0;
+      Serial.println("WiFi_Disable");
+      WiFi.disconnect(true);
+      WiFi.mode(WIFI_OFF);
+   }
+
+   if ((millis() - tim1000 > 1000) && STATE.WiFiEnable && HWCFG.PwrState == false)
+   {
+      tim1000 = millis();
+      if (NetworkCFG.TimSec < 59)
+      {
+         NetworkCFG.TimSec++;
+      }
+      else
+      {
+         NetworkCFG.TimSec = 0;
+         NetworkCFG.TimMin++;
       }
    }
 }

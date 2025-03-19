@@ -8,9 +8,11 @@
 
 
 void HTTPinit();
-// bool handleFileRead(String path);
-// String getContentType(String filename);
-// void UpdateData(void);
+bool handleFileRead(String path);
+String getContentType(String filename);
+void UpdateData(void);
+void HandleClient(void);
+
 // void UpdateStateWC(void);
 // void TimeUpdate(void);
 // void SystemUpdate(void);
@@ -19,7 +21,6 @@ void HTTPinit();
 // void WCLogiqUPD(void);
 // void SerialNumberUPD(void);
 // void SaveSecurity(void);
-// void HandleClient(void);
 // void Restart(void);
 // void TimeToSpeech();
 // void WC1DoorStateToSpeech();
