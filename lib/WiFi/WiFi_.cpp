@@ -10,7 +10,9 @@ void WIFIinit(boolean mode)
 #ifdef DEBUG
    Serial.println(F("WIFI_Init..."));
 #endif
-
+   IPAddress ip(NetworkCFG.IP1, NetworkCFG.IP2, NetworkCFG.IP3, NetworkCFG.IP4); // Static IP
+   IPAddress gateway(NetworkCFG.GW1, NetworkCFG.GW2, NetworkCFG.GW3, NetworkCFG.GW4);
+   IPAddress subnet(NetworkCFG.MK1, NetworkCFG.MK2, NetworkCFG.MK3, NetworkCFG.MK4);
    if (mode)
    {
       Serial.print("SSID=");
@@ -18,9 +20,9 @@ void WIFIinit(boolean mode)
       Serial.print("PASS=");
       Serial.println(NetworkCFG.Password.c_str());
 
-      IPAddress ip(NetworkCFG.IP1, NetworkCFG.IP2, NetworkCFG.IP3, NetworkCFG.IP4); // Static IP
-      IPAddress gateway(NetworkCFG.GW1, NetworkCFG.GW2, NetworkCFG.GW3, NetworkCFG.GW4);
-      IPAddress subnet(NetworkCFG.MK1, NetworkCFG.MK2, NetworkCFG.MK3, NetworkCFG.MK4);
+      // IPAddress ip(NetworkCFG.IP1, NetworkCFG.IP2, NetworkCFG.IP3, NetworkCFG.IP4); // Static IP
+      // IPAddress gateway(NetworkCFG.GW1, NetworkCFG.GW2, NetworkCFG.GW3, NetworkCFG.GW4);
+      // IPAddress subnet(NetworkCFG.MK1, NetworkCFG.MK2, NetworkCFG.MK3, NetworkCFG.MK4);
 
       WiFi.disconnect();
       WiFi.mode(WIFI_STA);
@@ -52,13 +54,13 @@ void WIFIinit(boolean mode)
 
       NetworkCFG.APPAS.toCharArray(tmppass, 15);
 
-      IPAddress apIP(192, 168, 1, 1);
+      // IPAddress apIP(192, 168, 1, 1);
       WiFi.disconnect();
       WiFi.mode(WIFI_AP);
       // WiFi.mode(WIFI_STA);
       esp_wifi_set_ps(WIFI_PS_NONE);
 
-      WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+      WiFi.softAPConfig(ip, gateway, subnet);
       WiFi.softAP(tmpssid, tmppass);
       Serial.println("WiFi: AP");
 

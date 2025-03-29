@@ -107,7 +107,7 @@ void GPIOInit()
 
 bool RTCInit(void)
 {
-  bool errRTC = true; 
+  bool errRTC = true;
 #ifdef DEBUG
   Serial.print(F("RTC_Init..."));
 #endif
@@ -187,56 +187,53 @@ String GetMacAdr()
 // Debug information
 void DebugInfo()
 {
-#ifndef DEBUG
-  if (STATE.Debug)
+#ifdef DEBUG
+  char message[37];
+
+  Serial.println(F("!!!!!!!!!!!!!!  DEBUG INFO  !!!!!!!!!!!!!!!!!!"));
+  sprintf(message, "GMT: %d", HWCFG.GMT);
+  Serial.println(message);
+  sprintf(message, "PWR: %d Battery: %3d %", HWCFG.PwrState, HWCFG.BatValue);
+  Serial.println(message);
+  sprintf(message, "System Time: %02d:%02d:%02d", SystemClock.hour, SystemClock.minute, SystemClock.second);
+  Serial.println(message);
+  sprintf(message, "System Date: %4d.%02d.%02d", SystemClock.year, SystemClock.month, SystemClock.date);
+  Serial.println(message);
+  sprintf(message, "Watch Start: %d State: %d", WatchClock.Start, WatchClock.ClockST);
+  Serial.println(message);
+  sprintf(message, "Watch: %02d:%02d:%02d", WatchClock.Hour, WatchClock.Minute, WatchClock.Polarity);
+  Serial.println(message);
+  sprintf(message, "T1: %0.1f T1_OFS: %d", HWCFG.dsT1, HWCFG.T1_ofs);
+  Serial.println(message);
+  sprintf(message, "VOL: %d", HWCFG.VOL);
+  Serial.println(message);
+  // If Preparation to Time Synch - done -> PWR GPS -> ON
+  if (HWCFG.GPSMode == GPS_ONCE)
   {
-    char message[37];
-
-    Serial.println(F("!!!!!!!!!!!!!!  DEBUG INFO  !!!!!!!!!!!!!!!!!!"));
-    sprintf(message, "GMT: %d", HWCFG.GMT);
-    Serial.println(message);
-    sprintf(message, "PWR: %d Battery: %3d %", HWCFG.PwrState, HWCFG.BatValue);
-    Serial.println(message);
-    sprintf(message, "System Time: %02d:%02d:%02d", SystemClock.hour, SystemClock.minute, SystemClock.second);
-    Serial.println(message);
-    sprintf(message, "System Date: %4d.%02d.%02d", SystemClock.year, SystemClock.month, SystemClock.date);
-    Serial.println(message);
-    sprintf(message, "Watch Start: %d State: %d", WatchClock.Start, WatchClock.ClockST);
-    Serial.println(message);
-    sprintf(message, "Watch: %02d:%02d:%02d", WatchClock.Hour, WatchClock.Minute, WatchClock.Polarity);
-    Serial.println(message);
-    sprintf(message, "T1: %0.1f T1_OFS: %d", HWCFG.dsT1, HWCFG.T1_ofs);
-    Serial.println(message);
-    sprintf(message, "VOL: %d", HWCFG.VOL);
-    Serial.println(message);
-    // If Preparation to Time Synch - done -> PWR GPS -> ON
-    if (HWCFG.GPSMode == GPS_ONCE)
-    {
-      sprintf(message, "GPS: PWR: %d, MODE: ONCE (to %02d:%02d)", HWCFG.GPSPWR, HWCFG.GPSStartHour, HWCFG.GPSStartMin);
-    }
-    else
-    {
-      sprintf(message, "GPS: PWR: %d, MODE: %d", HWCFG.GPSPWR, HWCFG.GPSMode);
-    }
-    Serial.printf("BTN Mode %1d \r\n", HWCFG.BtnMode);
-
-    // If Power connectet to External VCC -> Show WiFi State
-    // Else Show elasped time to WiFi OFF
-    if (HWCFG.PwrState)
-    {
-      sprintf(message, "WiFi EN: %d", STATE.WiFiEnable);
-    }
-    else
-    {
-      sprintf(message, "WiFi EN: %d T:%02d:%02d", STATE.WiFiEnable, NetworkCFG.TimMin, NetworkCFG.TimSec);
-    }
-
-    Serial.println(message);
-    Serial.printf("SN: %d \r\n", CFG.sn);
-
-    Serial.println(F("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"));
-    Serial.println();
+    sprintf(message, "GPS: PWR: %d, MODE: ONCE (to %02d:%02d)", HWCFG.GPSPWR, HWCFG.GPSStartHour, HWCFG.GPSStartMin);
   }
+  else
+  {
+    sprintf(message, "GPS: PWR: %d, MODE: %d", HWCFG.GPSPWR, HWCFG.GPSMode);
+  }
+  Serial.printf("BTN Mode %1d \r\n", HWCFG.BtnMode);
+
+  // If Power connectet to External VCC -> Show WiFi State
+  // Else Show elasped time to WiFi OFF
+  if (HWCFG.PwrState)
+  {
+    sprintf(message, "WiFi EN: %d", STATE.WiFiEnable);
+  }
+  else
+  {
+    sprintf(message, "WiFi EN: %d T:%02d:%02d", STATE.WiFiEnable, NetworkCFG.TimMin, NetworkCFG.TimSec);
+  }
+
+  Serial.println(message);
+  Serial.printf("SN: %d \r\n", CFG.sn);
+
+  Serial.println(F("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"));
+  Serial.println();
 #endif
 }
 

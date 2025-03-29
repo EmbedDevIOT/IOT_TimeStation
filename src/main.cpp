@@ -1,5 +1,6 @@
 #include "Config.h"
 
+#include "SysHandler.h"
 #include "FileConfig.h"
 #include "WF.h"
 #include "HTTP.h"
@@ -25,6 +26,7 @@ MicroDS3231 RTC;
 
 OneWire oneWire1(T1);
 DallasTemperature ds18b20(&oneWire1);
+PCF8574 pcf8574(ADR_IOEXP); 
 
 Button btn1(INT_BUT, INPUT, LOW);
 Button btn2(EXT_BUT, INPUT, LOW);
@@ -88,6 +90,11 @@ void SystemGeneralInit()
     // System Structures Init
     SystemStateInit();
 
+    // Инициализация PCF8574
+    // Wire.beginTransmission(ADR_IOEXP);
+    // Wire.write(0X00);
+    // Wire.endTransmission();
+
 #ifdef DEBUG
     I2C_Scanning();
 #endif
@@ -97,10 +104,7 @@ void SystemGeneralInit()
     // RTC init
     ERR_RTC = RTCInit();
     // I2C Expander
-    // PCF8574_init();
-    // #ifdef DEBUG
-    //   Serial.println(F("I2C_State...init"));
-    // #endif
+    PCF8574_InitPins();
 
 // Temperature Sensor
 #ifdef DEBUG
@@ -240,7 +244,7 @@ void SystemGeneralInit()
 #ifdef DEBUG
     Serial.println(F("Timeout"));
 #endif
-
+    STATE.WiFiEnable = true;
     WIFIinit(NetworkCFG.WiFiMode); // Initialisation  Wifi
     vTaskDelay(500 / portTICK_PERIOD_MS);
     HTTPinit(); // HTTP server initialisation
@@ -258,8 +262,8 @@ void SystemGeneralInit()
 //=======================       S E T U P       =========================
 void setup()
 {
-    CFG.fw = "0.0.6";
-    CFG.fwdate = "19.03.2024";
+    CFG.fw = "0.0.7";
+    CFG.fwdate = "29.03.2024";
 
     Serial.begin(UARTSpeed);
     SystemGeneralInit();
@@ -322,7 +326,7 @@ void loop()
     {
         HandleClient();
     }
-    ButtonHandler();
+    // ButtonHandler();
 }
 //=======================================================================
 
@@ -395,7 +399,7 @@ void HandlerCore1(void *pvParameters)
         SystemClock = RTC.getTime();
         // xSemaphoreGive(i2c_mutex);
 
-        DebugInfo();
+        // DebugInfo();
 
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
@@ -489,57 +493,57 @@ void ButtonHandler()
     //     SaveConfig();
 }
 //=========================================================================
-//=========================================================================
-void UART_Recieve_Data()
-{
-    if (Serial.available())
-    {
-        Serial.println("1");
-        // digitalWrite(LED_ST, HIGH);
+// //=========================================================================
+// void UART_Recieve_Data()
+// {
+//     if (Serial.available())
+//     {
+//         Serial.println("1");
+//         // digitalWrite(LED_ST, HIGH);
 
-        // put streamURL in serial monitor
-        // audio.stopSong();
-        String r = Serial.readString();
-        bool block_st = false;
-        r.trim();
-        if (r.length() > 3)
-        {
-            Amplifier.connecttohost(r.c_str());
-            // if (r == "time")
-            // {
-            //     Serial.println("Current Time");
-            //     Tell_me_CurrentTime();
-            // }
-            // if (r == "door1")
-            // {
-            //     Serial.println("DoorState");
-            //     Tell_me_DoorState(true);
-            // }
-            // if (r == "door0")
-            // {
-            //     Serial.println("DoorState");
-            //     Tell_me_DoorState(false);
-            // }
-            // if (r == "date")
-            // {
-            //     Serial.println("Current Date");
-            //     Tell_me_CurrentData();
-            // }
-            // if (r == "tellmetime")
-            // {
-            //     Serial.println("Current Time and Date");
-            //     Tell_me_CurrentTime();
-            //     Tell_me_CurrentData();
-            // }
-        }
-        else
-        {
-            // Amplifier.setVolume(r.toInt());
-            HWCFG.VOL = r.toInt();
-            STATE.VolumeUPD = true;
-        }
-        log_i("free heap=%i", ESP.getFreeHeap());
-        vTaskDelay(10 / portTICK_PERIOD_MS);
-    }
-}
-//=========================================================================
+//         // put streamURL in serial monitor
+//         // audio.stopSong();
+//         String r = Serial.readString();
+//         bool block_st = false;
+//         r.trim();
+//         if (r.length() > 3)
+//         {
+//             Amplifier.connecttohost(r.c_str());
+//             if (r == "time")
+//             {
+//                 Serial.println("Current Time");
+
+//             }
+//             // if (r == "door1")
+//             // {
+//             //     Serial.println("DoorState");
+//             //     Tell_me_DoorState(true);
+//             // }
+//             // if (r == "door0")
+//             // {
+//             //     Serial.println("DoorState");
+//             //     Tell_me_DoorState(false);
+//             // }
+//             // if (r == "date")
+//             // {
+//             //     Serial.println("Current Date");
+//             //     Tell_me_CurrentData();
+//             // }
+//             // if (r == "tellmetime")
+//             // {
+//             //     Serial.println("Current Time and Date");
+//             //     Tell_me_CurrentTime();
+//             //     Tell_me_CurrentData();
+//             // }
+//         }
+//         else
+//         {
+//             // Amplifier.setVolume(r.toInt());
+//             HWCFG.VOL = r.toInt();
+//             STATE.VolumeUPD = true;
+//         }
+//         log_i("free heap=%i", ESP.getFreeHeap());
+//         vTaskDelay(10 / portTICK_PERIOD_MS);
+//     }
+// }
+// //=========================================================================

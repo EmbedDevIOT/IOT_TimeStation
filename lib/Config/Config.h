@@ -11,6 +11,8 @@
 #include <microDS3231.h>
 #include <ArduinoJson.h>
 #include <EncButton.h>
+#include <Wire.h>
+#include "PCF8574.h"
 // #include <ElegantOTA.h>
 
 #include <OneWire.h>
@@ -19,7 +21,7 @@
 #define ADR_RTC 0x68
 #define ADR_EEPROM 0x57
 #define ADR_INA226 0x40
-#define ADR_IOEXP 0x20
+#define ADR_IOEXP 0x27
 
 #define UARTSpeed 115200
 #define GPSSpeed 115200
@@ -52,7 +54,15 @@
 #define GPS_ON 23    // GPS ON/OFF
 #define GPS_RST 13   // GPS Reset
 
-
+// Expander pins
+#define DRVA_1 P0    // CH_A Driver control (I2C)
+#define DRVA_2 P1    // CH_A Driver control (I2C)
+#define DRVB_1 P2    // CH_B Driver control (I2C)
+#define DRVB_2 P3    // CH_B Driver control (I2C)
+#define VDIV P4      // 12/24 Voltage control (I2C)
+#define MAX_PWR P5   // MAX1771 Power control (I2C)
+#define LIGHT_EN P6  // Backlighting control (I2C)
+#define HEAT_EN P7   // Wire heat control (I2C)
 
 // I2S
 #define I2S_DOUT 27
@@ -81,6 +91,7 @@
 //=======================================================================
 extern MicroDS3231 RTC;
 extern DateTime SystemClock;
+extern PCF8574 pcf8574;
 //=======================================================================
 
 //========================== ENUMERATION ================================
@@ -186,6 +197,7 @@ struct GlobalConfig
 
   char time[7] = "";
   char date[9] = "";
+
 };
 extern GlobalConfig CFG;
 //=======================================================================
@@ -196,27 +208,25 @@ struct NetworkConfig
   uint8_t TimSec = 0;
   long WiFiPeriod = 0;
 
+  String MacAdr = "";
   String NTPServer = "pool.ntp.org";  // niddet url NTP Server (Responce from HTTP websocket)
 
   String APSSID = "GKTime";           // Access Point ID
-  String APPAS = "gktime";            // Access Point PSW
+  String APPAS = "gktime123";            // Access Point PSW
 
   String Ssid = "EMBNET2G";           // Client SSID Wifi network
   String Password = "Ae19co90$!eT";   // Client Passwords WiFi network
-
-  String MacAdr = "";
-  String NTPServer = "pool.ntp.org";
-  String APSSID = "GKTime";
-  String APPAS = "gktime";
 
   byte IP1 = 192;
   byte IP2 = 168;
   byte IP3 = 1;
   byte IP4 = 1;
+
   byte GW1 = 192;
   byte GW2 = 168;
   byte GW3 = 1;
   byte GW4 = 1;
+
   byte MK1 = 255;
   byte MK2 = 255;
   byte MK3 = 255;
