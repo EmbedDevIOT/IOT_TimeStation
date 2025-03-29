@@ -95,11 +95,18 @@ extern PCF8574 pcf8574;
 //=======================================================================
 
 //========================== ENUMERATION ================================
-enum ClockST
+enum ClockState
 {
   STOP = 0,
   START,
   HOME
+};
+
+enum Watches
+{
+  Watch_1 = 1,
+  Watch_2,
+  Watch_ALL
 };
 
 // GPS Work Modes 
@@ -282,12 +289,15 @@ struct MechanicalClock
   byte Hold_time = 0;
   byte Polarity = 0;
   byte Start = 0;
-  byte ClockST = 2;
-  byte Volt = 24;
+  byte ClockState = 2;
+  byte Volt = 12;
   int PulseNormal = 500;
   int PulseFast = 300;
+
 };
 extern MechanicalClock WatchClock;
+extern MechanicalClock WatchClock2;
+
 //=======================================================================
 
 //=======================================================================
@@ -295,21 +305,17 @@ struct Flag
 {
   bool I2C_Block = 0;
   uint8_t cnt_Supd = 0;
-  bool DynamicUPD : 1;
-  bool DUPDBlock : 1;
   bool IDLE : 1;
   bool LedWiFi : 1;
-  bool LedRS : 1;
-  bool LedUser : 1;
   bool SaveFlash : 1;
   bool Debug : 1;
   bool CurDebug : 1;
   bool WiFiEnable : 1;  
   bool TTS : 1;        // Time to speech
   bool VolumeUPD : 1;  // Volume update
-  bool SensWC1 = 0;    // Sensor WC1 current state
-  bool SensWC2 = 0;    // Sensor WC2 current state
   uint8_t menu_tmr = 0;  
+  byte DCEnable = 0;
+  bool BrState = 0;
 };
 extern Flag STATE;
 //============================================================================

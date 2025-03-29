@@ -1,6 +1,7 @@
 #include "Config.h"
 
 #include "SysHandler.h"
+#include "ClockController.h"
 #include "FileConfig.h"
 #include "WF.h"
 #include "HTTP.h"
@@ -35,6 +36,7 @@ Button btn2(EXT_BUT, INPUT, LOW);
 //============================== STRUCTURES =============================
 DateTime SystemClock;       // RTC System Clock
 MechanicalClock WatchClock; // Mechanical Watch
+MechanicalClock WatchClock2; // Mechanical Watch 2
 NetworkConfig NetworkCFG;   // General Network Config
 GlobalConfig CFG;           // General Global Config (Remove) ???
 HardwareConfig HWCFG;       // hardware config
@@ -262,7 +264,7 @@ void SystemGeneralInit()
 //=======================       S E T U P       =========================
 void setup()
 {
-    CFG.fw = "0.0.7";
+    CFG.fw = "0.0.8";
     CFG.fwdate = "29.03.2024";
 
     Serial.begin(UARTSpeed);
@@ -493,57 +495,3 @@ void ButtonHandler()
     //     SaveConfig();
 }
 //=========================================================================
-// //=========================================================================
-// void UART_Recieve_Data()
-// {
-//     if (Serial.available())
-//     {
-//         Serial.println("1");
-//         // digitalWrite(LED_ST, HIGH);
-
-//         // put streamURL in serial monitor
-//         // audio.stopSong();
-//         String r = Serial.readString();
-//         bool block_st = false;
-//         r.trim();
-//         if (r.length() > 3)
-//         {
-//             Amplifier.connecttohost(r.c_str());
-//             if (r == "time")
-//             {
-//                 Serial.println("Current Time");
-
-//             }
-//             // if (r == "door1")
-//             // {
-//             //     Serial.println("DoorState");
-//             //     Tell_me_DoorState(true);
-//             // }
-//             // if (r == "door0")
-//             // {
-//             //     Serial.println("DoorState");
-//             //     Tell_me_DoorState(false);
-//             // }
-//             // if (r == "date")
-//             // {
-//             //     Serial.println("Current Date");
-//             //     Tell_me_CurrentData();
-//             // }
-//             // if (r == "tellmetime")
-//             // {
-//             //     Serial.println("Current Time and Date");
-//             //     Tell_me_CurrentTime();
-//             //     Tell_me_CurrentData();
-//             // }
-//         }
-//         else
-//         {
-//             // Amplifier.setVolume(r.toInt());
-//             HWCFG.VOL = r.toInt();
-//             STATE.VolumeUPD = true;
-//         }
-//         log_i("free heap=%i", ESP.getFreeHeap());
-//         vTaskDelay(10 / portTICK_PERIOD_MS);
-//     }
-// }
-// //=========================================================================

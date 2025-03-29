@@ -1,4 +1,5 @@
 #include "SysHandler.h"
+#include "ClockController.h"
 
 uint8_t expander_state = 0xFF; // Все пины изначально выключены (логика PCF8574: 0-активен, 1-выключен)
 //=========================================================================
@@ -53,6 +54,18 @@ void processCommand(String cmd)
             Serial.print("Current state: 0b");
             Serial.println(state, BIN);
         }
+    }
+    else if (action == "pulse1")
+    {
+        // Вызываем ClockPulse для Watch_1 с шагом 1 и длительностью 500
+        ClockPulse(Watch_1, 1, 500);
+        Serial.println("Pulse command executed");
+    }
+    else if (action == "pulse2")
+    {
+        // Вызываем ClockPulse для Watch_1 с шагом 1 и длительностью 500
+        ClockPulse(Watch_2, 1, 500);
+        Serial.println("Pulse command executed");
     }
     else if (action == "help")
     {
@@ -173,7 +186,6 @@ void PCF8574_init()
 //=========================================================================
 void PCF8574_InitPins()
 {
-
     // Массив пинов для инициализации
     const uint8_t pins[] = {DRVA_1, DRVA_2, DRVB_1, DRVB_2, VDIV, MAX_PWR, LIGHT_EN, HEAT_EN};
 #ifdef DEBUG

@@ -84,7 +84,7 @@ void LoadConfig()
   CFG.fw = doc["firmware"].as<String>();
 
 
-  WatchClock.ClockST = doc["ClockST1"];
+  WatchClock.ClockState = doc["ClockST1"];
   WatchClock.Volt = doc["volt1"];
   // SecondaryClock2.ClockST = doc["ClockST2"];
 
@@ -189,7 +189,7 @@ void SaveConfig()
 
   doc["WiFiMode"] = NetworkCFG.WiFiMode;
 
-  doc["ClockST1"] = WatchClock.ClockST;
+  doc["ClockST1"] = WatchClock.ClockState;
   doc["volt1"] = WatchClock.Volt;  
 
   // doc["ClockST2"] = SecondaryClock2.ClockST;

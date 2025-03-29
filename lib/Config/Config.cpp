@@ -129,9 +129,6 @@ void SystemStateInit(void)
   Serial.print(F("System_State_Init..."));
 #endif
   STATE.IDLE = true;
-  STATE.DynamicUPD = true;
-  STATE.DUPDBlock = false;
-  STATE.LedRS = false;
   STATE.LedWiFi = false;
   STATE.SaveFlash = false;
   STATE.Debug = true;
@@ -199,7 +196,9 @@ void DebugInfo()
   Serial.println(message);
   sprintf(message, "System Date: %4d.%02d.%02d", SystemClock.year, SystemClock.month, SystemClock.date);
   Serial.println(message);
-  sprintf(message, "Watch Start: %d State: %d", WatchClock.Start, WatchClock.ClockST);
+  sprintf(message, "Watch Start: %d State: %d", WatchClock.Start, WatchClock.ClockState);
+  Serial.println(message);
+  sprintf(message, "Watch2 Start: %d State: %d", WatchClock2.Start, WatchClock2.ClockState);
   Serial.println(message);
   sprintf(message, "Watch: %02d:%02d:%02d", WatchClock.Hour, WatchClock.Minute, WatchClock.Polarity);
   Serial.println(message);
