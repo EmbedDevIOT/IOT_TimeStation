@@ -44,6 +44,20 @@ void processCommand(String cmd)
         Serial.print(" set to ");
         Serial.println(state);
     }
+    else if (action == "vcc" && cmd.length() > 5){
+        int space2 = cmd.indexOf(' ', space1 + 1);
+        int vcc = cmd.substring(space1 + 1, space2).toInt();
+        ESP_LOGI(__func__, "vcc: %d", vcc);
+        WatchClock.Volt = vcc;
+    }
+    else if (action == "light" && cmd.length() > 7){
+        int space2 = cmd.indexOf(' ', space1 + 1);
+        int state = cmd.substring(space1 + 1, space2).toInt();
+        ESP_LOGI(__func__, "Light: %d", state);
+        if(state){
+            HWCFG.LedON = true;
+        }else HWCFG.LedON = false;
+    }
     else if (action == "get")
     {
         // Читаем текущее состояние
@@ -70,6 +84,8 @@ void processCommand(String cmd)
     else if (action == "help")
     {
         Serial.println("Available commands:");
+        Serial.println("VCC <value> <12|24>  - Set VCC value");
+        Serial.println("LIGHT <value> <0|1>  - Set Light ON");
         Serial.println("SET <pin 0-7> <0|1>  - Set pin state");
         Serial.println("GET                  - Get pin state");
         Serial.println("HELP                 - Show HELP");

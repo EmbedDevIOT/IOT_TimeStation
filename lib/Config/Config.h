@@ -95,6 +95,13 @@ extern PCF8574 pcf8574;
 //=======================================================================
 
 //========================== ENUMERATION ================================
+enum CHANNEL
+{
+  CH_A = 1,
+  CH_B,
+  CH_AB
+};
+
 enum ClockState
 {
   STOP = 0,
@@ -256,10 +263,10 @@ struct HardwareConfig
   uint8_t BatValue  = 0;      // Battery Value (in Percent) 
   int BAT_PROT = 40;          // Minimum Battery Limit (go to sleep) 
   // Time Backlight ON / OFF 
-  uint8_t LedStartHour = 18;     
-  uint8_t LedStartMinute = 30;
-  uint8_t LedFinishHour = 18;
-  uint8_t LedFinishMinute = 30;
+  uint8_t LedStartHour = 23;     
+  uint8_t LedStartMinute = 00;
+  uint8_t LedFinishHour = 06;
+  uint8_t LedFinishMinute = 00;
   // Time Enable GSP Synhronization 
   uint8_t GPSStartHour = 14;
   uint8_t GPSStartMin = 00;
@@ -267,11 +274,11 @@ struct HardwareConfig
   // Flags 
   uint8_t PwrState = 0;       // Curren Power State (DC power/Battery)
   uint8_t LedOnOFF = 1;       // Флаг старта работы подсветки
-  uint8_t LedON = 0;          // ????
+  uint8_t LedON = 0;          // Remote Control 
   uint8_t GPSSynh = 1;        // ????
   bool GPSPWR = true;         // Power GPS Module (State:  ON or OFF)
   // Mode 
-  uint8_t BtnMode = 3;           // Button Mode (???)
+  uint8_t BtnMode = 3;        // Button Mode (Action channel selection "A", "B" or "A + B")
   uint8_t GPSMode = 1;
 
   uint8_t ERRORcnt = 0;

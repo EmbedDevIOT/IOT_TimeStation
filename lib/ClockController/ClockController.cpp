@@ -333,23 +333,18 @@ byte CheckLightIntervall(byte TimeStartHour, byte TimeStartMinute, byte TimeFini
 /*******************************************************************************************************/
 void BacklightController()
 {
-    ESP_LOGI("BacklightController", "Checking light interval...");
     HWCFG.LedOnOFF = CheckLightIntervall(HWCFG.LedStartHour, HWCFG.LedStartMinute, HWCFG.LedFinishHour, HWCFG.LedFinishMinute);
-    ESP_LOGI("BacklightController", "LedOnOFF = %d", HWCFG.LedOnOFF);
 
     if ((HWCFG.LedOnOFF) || (HWCFG.LedON))
     {
-        ESP_LOGI("BacklightController", "Turning backlight ON.");
         pcf8574.digitalWrite(LIGHT_EN, HIGH);
         STATE.BrState = true;
     }
     else
     {
-        ESP_LOGI("BacklightController", "Turning backlight OFF.");
         pcf8574.digitalWrite(LIGHT_EN, LOW);
         STATE.BrState = false;
     }
-    ESP_LOGI("BacklightController", "BrState = %d", STATE.BrState);
 }
 
 

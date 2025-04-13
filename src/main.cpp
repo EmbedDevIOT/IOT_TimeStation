@@ -5,12 +5,14 @@
 #include "FileConfig.h"
 #include "WF.h"
 #include "HTTP.h"
+#include "esp_log.h"
 
 // #define DEBUG // Debug Mode ON
 //======================================================================
 
 //=========================== GLOBAL VARIABLES =========================
 uint8_t sec = 0;
+static const char *TAG = "APP";
 //======================================================================
 
 //================================ OBJECTs =============================
@@ -27,20 +29,20 @@ MicroDS3231 RTC;
 
 OneWire oneWire1(T1);
 DallasTemperature ds18b20(&oneWire1);
-PCF8574 pcf8574(ADR_IOEXP); 
+PCF8574 pcf8574(ADR_IOEXP);
 
-Button btn1(INT_BUT, INPUT, LOW);
-Button btn2(EXT_BUT, INPUT, LOW);
+Button btnINT(INT_BUT, INPUT, LOW);
+Button btnEXT(EXT_BUT, INPUT_PULLUP, LOW);
 //=======================================================================
 
 //============================== STRUCTURES =============================
-DateTime SystemClock;       // RTC System Clock
-MechanicalClock WatchClock; // Mechanical Watch
+DateTime SystemClock;        // RTC System Clock
+MechanicalClock WatchClock;  // Mechanical Watch
 MechanicalClock WatchClock2; // Mechanical Watch 2
-NetworkConfig NetworkCFG;   // General Network Config
-GlobalConfig CFG;           // General Global Config (Remove) ???
-HardwareConfig HWCFG;       // hardware config
-Flag STATE;                 // States FLag
+NetworkConfig NetworkCFG;    // General Network Config
+GlobalConfig CFG;            // General Global Config (Remove) ???
+HardwareConfig HWCFG;        // hardware config
+Flag STATE;                  // States FLag
 //=======================================================================
 
 //=========================== GLOBAL VARIABLES =========================
@@ -97,9 +99,9 @@ void SystemGeneralInit()
     // Wire.write(0X00);
     // Wire.endTransmission();
 
-#ifdef DEBUG
-    I2C_Scanning();
-#endif
+// #ifdef DEBUG
+//     I2C_Scanning();
+// #endif
     // GPIO Init
     GPIOInit();
 
@@ -264,10 +266,16 @@ void SystemGeneralInit()
 //=======================       S E T U P       =========================
 void setup()
 {
-    CFG.fw = "0.0.8";
-    CFG.fwdate = "29.03.2024";
+    // // Установить уровень логирования для всех компонентов на INFO
+    esp_log_level_set("*", ESP_LOG_INFO);
+    // // Установить уровень логирования для конкретного компонента (например, "ButtonHandler")
+    // esp_log_level_set("ButtonHandler", ESP_LOG_INFO);
+
+    CFG.fw = "0.1.0";
+    CFG.fwdate = "13.04.2024";
 
     Serial.begin(UARTSpeed);
+    
     SystemGeneralInit();
 
     // if (SerialNumConfig())
@@ -328,7 +336,7 @@ void loop()
     {
         HandleClient();
     }
-    // ButtonHandler();
+    ButtonHandler();
 }
 //=======================================================================
 
@@ -336,9 +344,8 @@ void loop()
 // Core 0. 10ms (I2S Audio Handler | MenuTimer_Exit
 void HandlerCore0(void *pvParameters)
 {
-    Serial.print("Task: I2S Handler | MenuTimer Exit \r\n");
-    Serial.print("T:10ms Stack:10000 Core:");
-    Serial.println(xPortGetCoreID());
+    ESP_LOGI(__func__, "Task: I2S Handler | MenuTimer Exit");
+    ESP_LOGI(__func__, "T:10ms Stack:10000 Core: %d", xPortGetCoreID());
     for (;;)
     {
         Amplifier.loop();
@@ -401,7 +408,7 @@ void HandlerCore1(void *pvParameters)
         SystemClock = RTC.getTime();
         // xSemaphoreGive(i2c_mutex);
 
-        // DebugInfo();
+        BacklightController();
 
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
@@ -417,7 +424,8 @@ void HandlerTask1000(void *pvParameters)
 
     for (;;)
     {
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        DebugInfo();
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
     }
 }
 //=======================================================================
@@ -433,41 +441,128 @@ void GetDSData()
 //=================== Keyboard buttons Handler =============================
 void ButtonHandler()
 {
-    // xSemaphoreTake(i2c_mutex, portMAX_DELAY);
-    STATE.I2C_Block = true;
+    static uint8_t step_count = 0;
 
-    btn1.tick();
-    btn2.tick();
+    // xSemaphoreTake(i2c_mutex, portMAX_DELAY);
+    // STATE.I2C_Block = true;
+
+    btnINT.tick();
+    btnEXT.tick();
 
     // Click Button 1 Handling (+)
-    if (btn1.click())
+    if (btnINT.click())
     {
-        Serial.printf("BTN 1 Click \r\n");
+        ESP_LOGI("ButtonHandler", "BTN 1 Click");
     }
 
-    // Click Button 2 Handling (-)
-    if (btn2.click())
+    while (btnEXT.busy())
     {
-        Serial.printf(" BTN 2 Click \r\n");
+        btnEXT.tick();
+        // One Click (1 Min Update Normal Pulse)
+        if (btnEXT.hasClicks(ONE))
+        {
+            Serial.println("ONE MIN PULSE");
+            switch (HWCFG.BtnMode)
+            {
+            case CH_A:
+                Serial.println("CH1");
+                ClockPulse(Watch_1, 1, WatchClock.PulseNormal);
+                break;
+            case CH_B:
+                Serial.println("CH2");
+                ClockPulse(Watch_2, 1, WatchClock.PulseNormal);
+                break;
+            case CH_AB:
+                Serial.println("CH1 + CH2");
+                ClockPulse(Watch_ALL, 1, WatchClock.PulseNormal);
+                break;
+            default:
+                break;
+            }
+        }
+
+        // #### Double Clicks (HOUR Update) ####
+        if (btnEXT.hasClicks(TWO))
+        {
+            Serial.println("ONE HOUR PULSE");
+            step_count = 0;
+            // FlagState.LedG = 1;
+            // FlagState.LedR = 0;
+            switch (HWCFG.BtnMode)
+            {
+            case 1:
+                Serial.println("CH1");
+                ClockPulse(Watch_1, 60, WatchClock.PulseFast);
+                break;
+            case 2:
+                Serial.println("CH2");
+                ClockPulse(Watch_2, 60, WatchClock.PulseFast);
+                break;
+            case 3:
+                Serial.println("CH1 + CH2");
+                ClockPulse(Watch_ALL, 60, WatchClock.PulseFast);
+                break;
+            default:
+                break;
+            }
+        }
+        // #### Triple Clicks (Channel Select) ####
+        if (btnEXT.hasClicks(THREE))
+        {
+            Serial.print("CHANNEL SELECT:");
+            if (HWCFG.BtnMode == CH_AB)
+            {
+                HWCFG.BtnMode = CH_A;
+                Serial.println("A");
+                digitalWrite(LED_CHA, !HIGH);
+                vTaskDelay(1000 / portTICK_PERIOD_MS);
+                digitalWrite(LED_CHA, !LOW);
+            }
+            else if (HWCFG.BtnMode == CH_A)
+            {
+                HWCFG.BtnMode = CH_B;
+                Serial.println("B");
+                digitalWrite(LED_CHB, !HIGH);
+                vTaskDelay(1000 / portTICK_PERIOD_MS);
+                digitalWrite(LED_CHB, !LOW);
+            }
+            else if (HWCFG.BtnMode == CH_B)
+            {
+                HWCFG.BtnMode = CH_AB;
+                Serial.println("A + B");
+                digitalWrite(LED_CHA, !HIGH);
+                digitalWrite(LED_CHB, !HIGH);
+                vTaskDelay(1000 / portTICK_PERIOD_MS);
+                digitalWrite(LED_CHA, !LOW);
+                digitalWrite(LED_CHB, !LOW);
+            }
+            Serial.println("Save preset");
+            SaveConfig();
+        }
     }
+    // // Click Button 2 Handling (-)
+    // if (btn2.click())
+    // {
+    //     Serial.printf(" BTN 2 Click \r\n");
+    // }
 
     // Holding Button 3 Handling (+)
-    if (btn2.getSteps() == 50)
-    {
-        Serial.printf(" BTN 3 STEP 50 \r\n");
+    // if (btn2.getSteps() == 50)
+    // {
+    //     Serial.printf(" BTN 2 STEP 50 \r\n");
 
-        uint32_t now = millis();
-        while (millis() - now < 3500)
-        {
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-        }
-        Serial.println("#### FACTORY RESET ####");
-        // SystemFactoryReset();
-        // SaveConfig();
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-        Serial.println("#### SAVE DONE ####");
-        ESP.restart();
-    }
+    //     uint32_t now = millis();
+    //     while (millis() - now < 3500)
+    //     {
+    //         vTaskDelay(1000 / portTICK_PERIOD_MS);
+    //     }
+    //     Serial.println("#### FACTORY RESET ####");
+    //     // SystemFactoryReset();
+    //     // SaveConfig();
+    //     vTaskDelay(1000 / portTICK_PERIOD_MS);
+    //     Serial.println("#### SAVE DONE ####");
+    //     ESP.restart();
+    // }
 
     // // WiFI ON / OFF
     // case _WiFi:

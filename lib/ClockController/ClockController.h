@@ -21,5 +21,6 @@
 
 void ClockPulse(uint8_t clock, uint16_t step, uint32_t t_pulse);
 void DisableAllDRVChannels();
+void BacklightController();
 
 #endif // CLOCKCONTROLLER_H

@@ -192,6 +192,8 @@ void DebugInfo()
   Serial.println(message);
   sprintf(message, "PWR: %d Battery: %3d %", HWCFG.PwrState, HWCFG.BatValue);
   Serial.println(message);
+  sprintf(message, "Watch VCC %2d", WatchClock.Volt);
+  Serial.println(message);
   sprintf(message, "System Time: %02d:%02d:%02d", SystemClock.hour, SystemClock.minute, SystemClock.second);
   Serial.println(message);
   sprintf(message, "System Date: %4d.%02d.%02d", SystemClock.year, SystemClock.month, SystemClock.date);
@@ -200,7 +202,11 @@ void DebugInfo()
   Serial.println(message);
   sprintf(message, "Watch2 Start: %d State: %d", WatchClock2.Start, WatchClock2.ClockState);
   Serial.println(message);
-  sprintf(message, "Watch: %02d:%02d:%02d", WatchClock.Hour, WatchClock.Minute, WatchClock.Polarity);
+  sprintf(message, "Watch: %02d:%02d Polar %2d", WatchClock.Hour, WatchClock.Minute, WatchClock.Polarity);
+  Serial.println(message);
+  sprintf(message, "Bright: ON %02d:%02d OFF: %02d:%02d ", HWCFG.LedStartHour, HWCFG.LedStartMinute, HWCFG.LedFinishHour, HWCFG.LedFinishMinute);
+  Serial.println(message);
+  sprintf(message, "Bright: LedON %d | LedOnOFF %2d ", HWCFG.LedON, HWCFG.LedOnOFF);
   Serial.println(message);
   sprintf(message, "T1: %0.1f T1_OFS: %d", HWCFG.dsT1, HWCFG.T1_ofs);
   Serial.println(message);
