@@ -1,11 +1,12 @@
 #include "Config.h"
 
 #include "SysHandler.h"
+#include "BatteryMonitor.h"
 #include "ClockController.h"
 #include "FileConfig.h"
 #include "WF.h"
 #include "HTTP.h"
-#include "esp_log.h"
+// #include "esp_log.h"
 
 // #define DEBUG // Debug Mode ON
 //======================================================================
@@ -27,6 +28,7 @@ SemaphoreHandle_t i2c_mutex;
 Audio Amplifier;
 MicroDS3231 RTC;
 
+BatteryMonitor battery(ADC1_CHANNEL_7, BATTERY_VOLTAGE_MIN, BATTERY_VOLTAGE_MAX, R1, R2);
 OneWire oneWire1(T1);
 DallasTemperature ds18b20(&oneWire1);
 PCF8574 pcf8574(ADR_IOEXP);
@@ -99,9 +101,9 @@ void SystemGeneralInit()
     // Wire.write(0X00);
     // Wire.endTransmission();
 
-// #ifdef DEBUG
-//     I2C_Scanning();
-// #endif
+#ifdef DEBUG
+    I2C_Scanning();
+#endif
     // GPIO Init
     GPIOInit();
 
@@ -132,6 +134,9 @@ void SystemGeneralInit()
     // #ifdef DEBUG
     //     Serial.println(F("DONE"));
     // #endif
+    ESP_LOGI(__func__, "Battery Monitor Init...");
+    battery.begin();
+    ESP_LOGI(__func__, "DONE");
 
     // BAttery ADC
     //   VBAT.attach(BAT_CONT);
@@ -161,57 +166,39 @@ void SystemGeneralInit()
     LoadConfig(); // Load configuration from config.json files
 
 #ifdef DEBUG
-    Serial.println(F("######################  System Configuration  ######################"));
-    Serial.printf("####  1. WiFi Mode: %d", NetworkCFG.WiFiMode);
-    Serial.println();
-    sprintf(message, "####  2. IP: %00d.%00d.%00d.%00d", NetworkCFG.IP1, NetworkCFG.IP2, NetworkCFG.IP3, NetworkCFG.IP4);
-    Serial.println(F(message));
-    sprintf(message, "####  3. Gate: %00d.%00d.%00d.%00d", NetworkCFG.GW1, NetworkCFG.GW2, NetworkCFG.GW3, NetworkCFG.GW4);
-    Serial.println(F(message));
-    sprintf(message, "####  4. Mask: %00d.%00d.%00d.%00d", NetworkCFG.MK1, NetworkCFG.MK2, NetworkCFG.MK3, NetworkCFG.MK4);
-    Serial.println(F(message));
-    Serial.printf("####  5. Sensor Limit: %000d", HWCFG.L_Lim);
-    Serial.println();
-    Serial.printf("####  7. GPS Mode: %d", HWCFG.GPSMode);
-    Serial.println();
-    sprintf(message, "####  8. DataRTC: %0002d-%02d-%02d", SystemClock.year, SystemClock.month, SystemClock.date);
-    Serial.println(F(message));
-    sprintf(message, "####  9. TimeRTC: %02d:%02d:%02d", SystemClock.hour, SystemClock.minute, SystemClock.second);
-    Serial.println(F(message));
-    sprintf(message, "####  10. TimeSecondaryClock_1: %02d:%02d:%02d", WatchClock.Hour, WatchClock.Minute, WatchClock.Second);
-    Serial.println(F(message));
-    //   sprintf(message, "####  11. TimeSecondaryClock_2: %02d:%02d:%02d", WatchClock.Hour, SecondaryClock2.Minute, SecondaryClock2.Second);
-    //   Serial.println(F(message));
-    Serial.printf("####  12. Clock1_Start: %d", WatchClock.Start);
-    Serial.println();
-    Serial.printf("####  13. Clock1_Polarity: %d", WatchClock.Polarity);
-    Serial.println();
-    sprintf(message, "####  14. BackLight Start: %02d:%02d", HWCFG.LedStartHour, HWCFG.LedStartMinute);
-    Serial.println(F(message));
-    sprintf(message, "####  15. BackLight Stop: %02d:%02d", HWCFG.LedFinishHour, HWCFG.LedFinishMinute);
-    Serial.println(F(message));
-    Serial.printf("####  16. BackLight: %d", HWCFG.LedOnOFF);
-    Serial.println();
-    sprintf(message, "####  17. CL_Volt1: %02d V", WatchClock.Volt);
-    Serial.println(F(message));
-    sprintf(message, "####  18. TimSGPS: %02d:%02d:%02d", HWCFG.GPSStartHour, HWCFG.GPSStartMin, HWCFG.GPSStartSec);
-    Serial.println(F(message));
-    Serial.printf("####  19. Time Zone: %d", HWCFG.GMT);
-    Serial.println();
-    Serial.printf("####  20. PulseNORMAL: %000d ms", WatchClock.PulseNormal);
-    Serial.println();
-    Serial.printf("####  21. PulseFAST: %000d ms", WatchClock.PulseFast);
-    Serial.println();
-    Serial.printf("####  22. Current_Protect: %2d mA", HWCFG.I_PROT);
-    Serial.println();
-    Serial.printf("####  23. Min_Bat_Voltage: %3d %", HWCFG.BAT_PROT);
-    Serial.println();
-    Serial.printf("####  24. BTNMode: %d", HWCFG.BtnMode);
-    Serial.println();
-    Serial.printf("####  25. GPSSynh: %d", HWCFG.GPSSynh);
-    Serial.println();
-    sprintf(message, "####  26. GPS_Synh_Start: %02d:%02d", HWCFG.GPSStartHour, HWCFG.GPSStartMin);
-    Serial.println(F(message));
+    Serial.println(F("######################  GENERAL CONFIGURATION  ######################"));
+    Serial.println(F("SYSTEM:"));
+    ESP_LOGI(TAG, "SN: %d", CFG.sn);
+    ESP_LOGI(TAG, "GMT: %d", HWCFG.GMT);
+    ESP_LOGI(TAG, "Time: %02d:%02d:%02d", SystemClock.hour, SystemClock.minute, SystemClock.second);
+    ESP_LOGI(TAG, "Data: %0002d-%02d-%02d", SystemClock.year, SystemClock.month, SystemClock.date);
+    ESP_LOGI(TAG, "BTNMode: %d", HWCFG.BtnMode);
+
+    Serial.println(F("WATCH:"));
+    ESP_LOGI(TAG, "TimeSecondaryClock_1: %02d:%02d:%02d", WatchClock.Hour, WatchClock.Minute, WatchClock.Second);
+    ESP_LOGI(TAG, "Voltage1: %02d V", WatchClock.Volt);
+    ESP_LOGI(TAG, "Start: %d", WatchClock.Start);
+    ESP_LOGI(TAG, "Polarity: %d", WatchClock.Polarity);
+    ESP_LOGI(TAG, "PulseNORMAL: %000d ms", WatchClock.PulseNormal);
+    ESP_LOGI(TAG, "PulseFAST: %000d ms", WatchClock.PulseFast);
+    ESP_LOGI(TAG, "BackLight: %d", HWCFG.LedOnOFF);
+    ESP_LOGI(TAG, "BackLight Start: %02d:%02d", HWCFG.LedStartHour, HWCFG.LedStartMinute);
+    ESP_LOGI(TAG, "BackLight Stop: %02d:%02d", HWCFG.LedFinishHour, HWCFG.LedFinishMinute);
+
+    Serial.println(F("SENSOR:"));
+    ESP_LOGI(TAG, "Light Sensor Limit: %000d", HWCFG.L_Lim);
+    ESP_LOGI(TAG, "GPS Mode: %d", HWCFG.GPSMode);
+    ESP_LOGI(TAG, "TimSGPS: %02d:%02d:%02d", HWCFG.GPSStartHour, HWCFG.GPSStartMin, HWCFG.GPSStartSec);
+    ESP_LOGI(TAG, "Current_Protect: %2d mA", HWCFG.I_PROT);
+    ESP_LOGI(TAG, "Min_Bat_Voltage: %3d %%", HWCFG.BAT_PROT);
+    ESP_LOGI(TAG, "GPSSynh: %d", HWCFG.GPSSynh);
+    ESP_LOGI(TAG, "GPS_Synh_Start: %02d:%02d", HWCFG.GPSStartHour, HWCFG.GPSStartMin);
+
+    Serial.println(F("NETWORK:"));
+    ESP_LOGI(TAG, "WiFi Mode: %d", NetworkCFG.WiFiMode);
+    ESP_LOGI(TAG, "IP: %00d.%00d.%00d.%00d", NetworkCFG.IP1, NetworkCFG.IP2, NetworkCFG.IP3, NetworkCFG.IP4);
+    ESP_LOGI(TAG, "Gate: %00d.%00d.%00d.%00d", NetworkCFG.GW1, NetworkCFG.GW2, NetworkCFG.GW3, NetworkCFG.GW4);
+    ESP_LOGI(TAG, "Mask: %00d.%00d.%00d.%00d", NetworkCFG.MK1, NetworkCFG.MK2, NetworkCFG.MK3, NetworkCFG.MK4);
     Serial.println(F("#####################################################################"));
 #endif
 
@@ -271,11 +258,11 @@ void setup()
     // // Установить уровень логирования для конкретного компонента (например, "ButtonHandler")
     // esp_log_level_set("ButtonHandler", ESP_LOG_INFO);
 
-    CFG.fw = "0.1.0";
-    CFG.fwdate = "13.04.2024";
+    CFG.fw = "0.2.0";
+    CFG.fwdate = "11.05.2024";
 
     Serial.begin(UARTSpeed);
-    
+
     SystemGeneralInit();
 
     // if (SerialNumConfig())
@@ -408,9 +395,10 @@ void HandlerCore1(void *pvParameters)
         SystemClock = RTC.getTime();
         // xSemaphoreGive(i2c_mutex);
 
+        WatchHandler();
         BacklightController();
 
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(500 / portTICK_PERIOD_MS);
     }
 }
 
@@ -424,7 +412,12 @@ void HandlerTask1000(void *pvParameters)
 
     for (;;)
     {
-        DebugInfo();
+        HWCFG.BatVoltage = battery.getBatteryVoltage();
+        HWCFG.BatPercent = battery.getBatteryPercent();
+        // Serial.printf("BatteryADCRaw: %3d \r\n", battery.getAdcRaw());
+        // Serial.printf("BatteryDevider: %0.3f \r\n", battery.getDividerVoltage());
+
+        // DebugInfo();
         vTaskDelay(2000 / portTICK_PERIOD_MS);
     }
 }
@@ -452,7 +445,19 @@ void ButtonHandler()
     // Click Button 1 Handling (+)
     if (btnINT.click())
     {
-        ESP_LOGI("ButtonHandler", "BTN 1 Click");
+        static bool heat_state = true;
+        // ESP_LOGI("ButtonHandler", "BTN 1 Click");
+        if (heat_state == true)
+        {
+            pcf8574.digitalWrite(HEAT_EN, HIGH);
+            heat_state = false;
+        }
+        else
+        {
+            heat_state = true;
+            pcf8574.digitalWrite(HEAT_EN, LOW);
+        }
+        ESP_LOGI("ButtonHandler", "Heat: %d", heat_state);
     }
 
     while (btnEXT.busy())

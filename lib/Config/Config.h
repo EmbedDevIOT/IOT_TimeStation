@@ -2,6 +2,9 @@
 #define _Config_H
 
 #include <Arduino.h>
+// #include "ClockController.h"
+// #include "BatteryMonitor.h"
+#include "esp_log.h"
 
 #include <Audio.h>
 #include "HardwareSerial.h"
@@ -43,6 +46,13 @@
 
 #define ON 1
 #define OFF 0
+
+// Prescaller for ADC
+#define R1 100000
+#define R2 10000
+
+// Battery voltage divider resistors
+#define VOLTAGE_DIVIDER_RATIO (230.0 / 100.0)  // (R1 + R2) / R2
 
 //======================    G P I O        =====================
 // OUT PINS 
@@ -260,12 +270,14 @@ struct HardwareConfig
   int L_Lim = 1000;           // Light sensor enable limit (Light_ON)
   int i_sens = 0;             // Current sensor sensetivity 
   int I_PROT = 200;           // Current Protect
-  uint8_t BatValue  = 0;      // Battery Value (in Percent) 
-  int BAT_PROT = 40;          // Minimum Battery Limit (go to sleep) 
+  float BatVoltage  = 0;      // Battery Value (Voltage)
+  uint8_t BatPercent  = 0;    // Battery Value (Percent) 
+
+  int BAT_PROT = 40;          // Minimum Battery Limit in percent (go to sleep) 
   // Time Backlight ON / OFF 
-  uint8_t LedStartHour = 23;     
+  uint8_t LedStartHour = 16;     
   uint8_t LedStartMinute = 00;
-  uint8_t LedFinishHour = 06;
+  uint8_t LedFinishHour = 17;
   uint8_t LedFinishMinute = 00;
   // Time Enable GSP Synhronization 
   uint8_t GPSStartHour = 14;
@@ -278,7 +290,7 @@ struct HardwareConfig
   uint8_t GPSSynh = 1;        // ????
   bool GPSPWR = true;         // Power GPS Module (State:  ON or OFF)
   // Mode 
-  uint8_t BtnMode = 3;        // Button Mode (Action channel selection "A", "B" or "A + B")
+  uint8_t BtnMode = CH_AB;        // Button Mode (Action channel selection "A", "B" or "A + B")
   uint8_t GPSMode = 1;
 
   uint8_t ERRORcnt = 0;
@@ -298,9 +310,9 @@ struct MechanicalClock
   byte Start = 0;
   byte ClockState = 2;
   byte Volt = 12;
-  int PulseNormal = 500;
+  int PulseNormal = 700;
   int PulseFast = 300;
-
+  int PulsePause = 100;
 };
 extern MechanicalClock WatchClock;
 extern MechanicalClock WatchClock2;
@@ -310,6 +322,8 @@ extern MechanicalClock WatchClock2;
 //=======================================================================
 struct Flag
 {
+  bool Start = 0;
+  bool Watch1_EN = 0;
   bool I2C_Block = 0;
   uint8_t cnt_Supd = 0;
   bool IDLE : 1;

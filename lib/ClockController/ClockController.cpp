@@ -4,22 +4,22 @@
 /******************************* DC - DC Step UP Initialisation ***************************************/
 void StepUP_EN(bool state, uint8_t Voltage)
 {
-    ESP_LOGI("StepUP_EN", "Function called with state: %d, Voltage: %d", state, Voltage);
+    // ESP_LOGI("StepUP_EN", "Function called with state: %d, Voltage: %d", state, Voltage);
 
     if (state == HIGH)
     {
         switch (Voltage)
         {
         case 12:
-            STATE.DCEnable = false;
+            STATE.DCEnable = true;
             pcf8574.digitalWrite(VDIV, LOW);
-            ESP_LOGI("StepUP_EN", "Setting Voltage to 12V");
+            // ESP_LOGI("StepUP_EN", "Setting Voltage to 12V");
             break;
 
         case 24:
-            STATE.DCEnable = false;
+            STATE.DCEnable = true;
             pcf8574.digitalWrite(VDIV, HIGH);
-            ESP_LOGI("StepUP_EN", "Setting Voltage to 24V");
+            // ESP_LOGI("StepUP_EN", "Setting Voltage to 24V");
             break;
 
         default:
@@ -27,14 +27,14 @@ void StepUP_EN(bool state, uint8_t Voltage)
             break;
         }
         pcf8574.digitalWrite(MAX_PWR, STATE.DCEnable);
-        ESP_LOGI("StepUP_EN", "DC-DC converter enabled");
+        // ESP_LOGI("StepUP_EN", "DC-DC converter enabled");
     }
     else
     {
-        STATE.DCEnable = true;
+        STATE.DCEnable = false;
         digitalWrite(MAX_PWR, STATE.DCEnable);
         digitalWrite(VDIV, LOW);
-        ESP_LOGI("StepUP_EN", "DC-DC converter disabled");
+        // ESP_LOGI("StepUP_EN", "DC-DC converter disabled");
     }
 }
 /*******************************************************************************************************/
@@ -49,7 +49,25 @@ void DisableAllDRVChannels()
     pcf8574.digitalWrite(DRVB_2, LOW);
 }
 /*******************************************************************************************************/
+void WatchHandler()
+{
+    if (WatchClock.Hold_time > 0)
+        WatchClock.Hold_time--;
 
+    if (WatchClock.Start == START)
+        ClockController((SystemClock.hour >= 12) ? (SystemClock.hour - 12) : SystemClock.hour, SystemClock.minute);
+
+    else if (WatchClock.Start == HOME || (HWCFG.PwrState == 0 && (HWCFG.BatPercent < HWCFG.BAT_PROT)))
+    {
+        ClockController(0, 0);
+        // debug("home position");
+    }
+    else
+    {
+        StepUP_EN(LOW, WatchClock.Volt);
+        WatchClock.ClockState = 2; // Set status
+    }
+}
 
 /*******************************************************************************************************/
 // Accepted parametrs
@@ -155,7 +173,6 @@ void ClockPulse(uint8_t clock, uint16_t step, uint32_t t_pulse)
                 pcf8574.digitalWrite(DRVB_2, LOW);
                 digitalWrite(LED_STG, HIGH);
 
-
                 ESP_LOGI("ClockPulse", "CH B: Pulse: H");
             }
             else
@@ -164,7 +181,6 @@ void ClockPulse(uint8_t clock, uint16_t step, uint32_t t_pulse)
                 pcf8574.digitalWrite(DRVB_1, LOW);
                 pcf8574.digitalWrite(DRVB_2, HIGH);
                 digitalWrite(LED_STR, HIGH);
-
 
                 ESP_LOGI("ClockPulse", "CH B: Pulse: L");
             }
@@ -250,8 +266,9 @@ void ClockPulse(uint8_t clock, uint16_t step, uint32_t t_pulse)
 #endif
     }
     DisableAllDRVChannels();
-
     EEP_Write(); // Save polarity
+    // wayting for next pulse 
+    // vTaskDelay( WatchClock.PulsePause / portTICK_PERIOD_MS);
 }
 /*******************************************************************************************************/
 
@@ -331,6 +348,8 @@ byte CheckLightIntervall(byte TimeStartHour, byte TimeStartMinute, byte TimeFini
     return 0;
 }
 /*******************************************************************************************************/
+
+/********************************** Light Controll (ON / OFF) *****************************************/
 void BacklightController()
 {
     HWCFG.LedOnOFF = CheckLightIntervall(HWCFG.LedStartHour, HWCFG.LedStartMinute, HWCFG.LedFinishHour, HWCFG.LedFinishMinute);
@@ -338,13 +357,16 @@ void BacklightController()
     if ((HWCFG.LedOnOFF) || (HWCFG.LedON))
     {
         pcf8574.digitalWrite(LIGHT_EN, HIGH);
+        // pcf8574.digitalWrite(HEAT_EN, HIGH);
+
         STATE.BrState = true;
     }
     else
     {
         pcf8574.digitalWrite(LIGHT_EN, LOW);
+        // pcf8574.digitalWrite(HEAT_EN, LOW);
+
         STATE.BrState = false;
     }
 }
-
-
+/*******************************************************************************************************/

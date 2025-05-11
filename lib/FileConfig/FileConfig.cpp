@@ -199,7 +199,7 @@ void SaveConfig()
   serializeJson(doc, configFile); // Writing json string to file
   configFile.close();
 
-  Serial.println("Configuration SAVE");
+  ESP_LOGI(__func__, "Configuration SAVE");
 }
 
 void TestDeserializJSON()

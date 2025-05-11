@@ -1,7 +1,7 @@
 {
    "ClockST1": 2,
-   "BrStart": "23:00",
-   "BrStop": "06:00",
+   "BrStart": "16:00",
+   "BrStop": "17:00",
    "GPSMode": 1,
    "GPSSyn": 1,
    "LedON": 0,

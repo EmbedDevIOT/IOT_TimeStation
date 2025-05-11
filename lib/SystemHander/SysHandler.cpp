@@ -218,3 +218,6 @@ void PCF8574_InitPins()
     Serial.println(F("DONE"));
 #endif
 }
+
+void INA226_init()
+{}

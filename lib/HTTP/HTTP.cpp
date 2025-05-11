@@ -1,4 +1,5 @@
 #include "HTTP.h"
+#include "ClockController.h"
 
 WebServer HTTP(80);
 
@@ -8,31 +9,37 @@ WebServer HTTP(80);
 void HTTPinit()
 {
 #ifdef DEBUG
-    Serial.print(F("HTTP_Init..."));
+  Serial.print(F("HTTP_Init..."));
 #endif
-    HTTP.begin();
-    // ElegantOTA.begin(&HTTP); // Start ElegantOTA
-    HTTP.on("/update.json", UpdateData);
-    //   HTTP.on("/wcupd.json", UpdateStateWC);
-    //   HTTP.on("/SysUPD", SystemUpdate);
-    //   HTTP.on("/TimeUPD", TimeUpdate);
-    //   HTTP.on("/TextUPD", TextUpdate);
-    //   HTTP.on("/ColUPD", ColorUpdate);
-    //   HTTP.on("/SNUPD", SerialNumberUPD);
-    //   HTTP.on("/WCLUPD", WCLogiqUPD);
-    //   HTTP.on("/WiFiUPD", SaveSecurity);
-    //   HTTP.on("/BRBT", Restart);              // Restart MCU
-    //   HTTP.on("/BTTS", TimeToSpeech);         // Tell me Date an Time
-    //   HTTP.on("/BDS1", WC1DoorStateToSpeech); // Tell me Door state
-    //   HTTP.on("/BDS2", WC2DoorStateToSpeech); // Tell me Door state
-    //   HTTP.on("/FW", ShowSystemInfo);
-    //   HTTP.on("/BFRST", FactoryReset);               // Set default parametrs.
-    HTTP.onNotFound([]() {                             // Event "Not Found"
-        if (!handleFileRead(HTTP.uri()))               // If function  handleFileRead (discription bellow) returned false in request for file searching in file syste
-            HTTP.send(404, "text/plain", "Not Found"); // return message "File isn't found" error state 404 (not found )
-    });
+  HTTP.begin();
+  // ElegantOTA.begin(&HTTP); // Start ElegantOTA
+  HTTP.on("/update.json", UpdateData);
+  HTTP.on("/BSSN", BSaveSN);             // Save serial number.
+  HTTP.on("/Start", StartWC1);           // Start/Stop Watch
+  HTTP.on("/W1_UPD", UpdateWatchClock1); // Watch Clock_1 Update Parameters
+  HTTP.on("/BDS", BDS);                  // RTC Data synhronization
+  HTTP.on("/BCP", ClockPulseUPD);        // Clock pulse (+ 1Min or 1Hour)
+  HTTP.on("/BPWR", PowerControl);        // Select Power State (IDLE parametr)
+  //   HTTP.on("/wcupd.json", UpdateStateWC);
+  //   HTTP.on("/SysUPD", SystemUpdate);
+  //   HTTP.on("/TimeUPD", TimeUpdate);
+  //   HTTP.on("/TextUPD", TextUpdate);
+  //   HTTP.on("/ColUPD", ColorUpdate);
+  //   HTTP.on("/SNUPD", SerialNumberUPD);
+  //   HTTP.on("/WCLUPD", WCLogiqUPD);
+  //   HTTP.on("/WiFiUPD", SaveSecurity);
+  //   HTTP.on("/BRBT", Restart);              // Restart MCU
+  //   HTTP.on("/BTTS", TimeToSpeech);         // Tell me Date an Time
+  //   HTTP.on("/BDS1", WC1DoorStateToSpeech); // Tell me Door state
+  //   HTTP.on("/BDS2", WC2DoorStateToSpeech); // Tell me Door state
+  //   HTTP.on("/FW", ShowSystemInfo);
+  //   HTTP.on("/BFRST", FactoryReset);               // Set default parametrs.
+  HTTP.onNotFound([]() {                         // Event "Not Found"
+    if (!handleFileRead(HTTP.uri()))             // If function  handleFileRead (discription bellow) returned false in request for file searching in file syste
+      HTTP.send(404, "text/plain", "Not Found"); // return message "File isn't found" error state 404 (not found )
+  });
 #ifdef DEBUG
-    Serial.println(F("DONE"));
+  Serial.println(F("DONE"));
 #endif
 }
 
@@ -41,17 +48,17 @@ void HTTPinit()
 // ////////////////////////////////////////
 bool handleFileRead(String path)
 {
-    if (path.endsWith("/"))
-        path += "index.html";                  // Если устройство вызывается по корневому адресу, то должен вызываться файл index.html (добавляем его в конец адреса)
-    String contentType = getContentType(path); // С помощью функции getContentType (описана ниже) определяем по типу файла (в адресе обращения) какой заголовок необходимо возвращать по его вызову
-    if (SPIFFS.exists(path))
-    {                                                     // Если в файловой системе существует файл по адресу обращения
-        File file = SPIFFS.open(path, "r");               //  Открываем файл для чтения
-        size_t sent = HTTP.streamFile(file, contentType); //  Выводим содержимое файла по HTTP, указывая заголовок типа содержимого contentType
-        file.close();                                     //  Закрываем файл
-        return true;                                      //  Завершаем выполнение функции, возвращая результатом ее исполнения true (истина)
-    }
-    return false; // Завершаем выполнение функции, возвращая результатом ее исполнения false (если не обработалось предыдущее условие)
+  if (path.endsWith("/"))
+    path += "index.html";                    // Если устройство вызывается по корневому адресу, то должен вызываться файл index.html (добавляем его в конец адреса)
+  String contentType = getContentType(path); // С помощью функции getContentType (описана ниже) определяем по типу файла (в адресе обращения) какой заголовок необходимо возвращать по его вызову
+  if (SPIFFS.exists(path))
+  {                                                   // Если в файловой системе существует файл по адресу обращения
+    File file = SPIFFS.open(path, "r");               //  Открываем файл для чтения
+    size_t sent = HTTP.streamFile(file, contentType); //  Выводим содержимое файла по HTTP, указывая заголовок типа содержимого contentType
+    file.close();                                     //  Закрываем файл
+    return true;                                      //  Завершаем выполнение функции, возвращая результатом ее исполнения true (истина)
+  }
+  return false; // Завершаем выполнение функции, возвращая результатом ее исполнения false (если не обработалось предыдущее условие)
 }
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -97,13 +104,160 @@ void UpdateData()
 
   HTTP.send(200, "text/plain", buf);
 }
-// /*******************************************************************************************************/
-// /*******************************************************************************************************/
+/*******************************************************************************************************/
+
+/*******************************************************************************************************/
 void HandleClient()
 {
   HTTP.handleClient();
 }
-// /*******************************************************************************************************/
+/*******************************************************************************************************/
+
+/*******************************************************************************************************/
+void BSaveSN()
+{
+  if (CFG.sn == 0)
+  {
+    CFG.sn = HTTP.arg("SN").toInt();
+    ESP_LOGI(__func__, "sn: %d", CFG.sn);
+    SaveConfig();
+    ShowFlashSave();
+  }
+  else
+  {
+    ESP_LOGI(__func__, "no changes required");
+  }
+  HTTP.send(200, "text/html",
+            "<html><body style='font-size:24px; display:flex; justify-content:center; align-items:center; height:100vh;'>Operation completed successfully</body></html>");
+}
+/*******************************************************************************************************/
+
+/*******************************************************************************************************/
+// Start/Stop Watch Clock #1
+// Example GET request: /Start 
+void StartWC1()
+{
+  if ((WatchClock.Start == STOP) || (WatchClock.Start == HOME))
+  {
+    WatchClock.Start = START;
+  }
+  else
+    WatchClock.Start = STOP;
+
+  EEP_Write();
+
+  HTTP.send(200, "text/plain", "OK");
+}
+/*******************************************************************************************************/
+
+
+/*******************************************************************************************************/
+void PowerControl()
+{
+  HTTP.send(200, "text/plain", "OK"); // Oтправляем ответ Reset OK
+
+  STATE.IDLE = HTTP.arg("IDLE").toInt();
+  if (STATE.IDLE)
+  {
+    Serial.printf(">>>> IDLE state START <<<<");
+  }
+  else
+    ESP_LOGI("PowerControl", ">>>> IDLE state START <<<<");
+}
+/*******************************************************************************************************/
+
+/*******************************************************************************************************/
+void ClockPulseUPD()
+{
+  struct CLUPD
+  {
+    uint8_t CH = 0;
+    uint16_t step = 0;
+    uint16_t pulse = 0;
+  };
+  CLUPD TclUPD;
+
+  HTTP.send(200, "text/plain", "OK"); // Send Reset OK
+
+  TclUPD.CH = HTTP.arg("CH").toInt();
+  ESP_LOGI("ClockPulseUPD", "Channel: %d", TclUPD.CH);
+
+  TclUPD.step = HTTP.arg("pulse").toInt();
+  ESP_LOGI("ClockPulseUPD", "Pulse Amount: %d", TclUPD.step);
+
+  (TclUPD.step == 1) ? (TclUPD.pulse = WatchClock.PulseNormal) : (TclUPD.pulse = WatchClock.PulseFast);
+
+  ESP_LOGI("ClockPulseUPD", "Pulse Speed: %d", TclUPD.pulse);
+
+  if (TclUPD.CH == CH_AB)
+  {
+    ClockPulse(CH_AB, TclUPD.step, TclUPD.pulse);
+    // ClockPulse(CH_A, TclUPD.step, TclUPD.pulse);
+    // ClockPulse(CH_B, TclUPD.step, TclUPD.pulse);
+  }
+  else
+  {
+    ClockPulse(TclUPD.CH, TclUPD.step, TclUPD.pulse);
+  }
+}
+/*******************************************************************************************************/
+
+/*******************************************************************************************************/
+// Time UPD in Secondary Clock #1
+// Example GET request:  /W1_UPD?H=17&M=30&S=55&tz=3&TimeSC=00:00
+void UpdateWatchClock1()
+{
+  char TempBuf[10];
+
+  HTTP.arg("H").toCharArray(TempBuf, 10);
+  SystemClock.hour = atoi(strtok(TempBuf, ":"));
+  HTTP.arg("M").toCharArray(TempBuf, 10);
+  SystemClock.minute = atoi(strtok(TempBuf, ":"));
+  HTTP.arg("S").toCharArray(TempBuf, 10);
+  SystemClock.second = atoi(strtok(TempBuf, ":"));
+  RTC.setTime(SystemClock);
+
+  ESP_LOGI(__func__, "Time: %02d:%02d:%02d", SystemClock.hour, SystemClock.minute, SystemClock.second);
+
+  HWCFG.GMT = HTTP.arg("tz").toInt();
+  ESP_LOGI(__func__, "TimeZone: %d", HWCFG.GMT);
+
+  HTTP.arg("TimeSC").toCharArray(TempBuf, 10);
+  byte TempHour = atoi(strtok(TempBuf, ":"));
+  WatchClock.Hour = (TempHour >= 12) ? (TempHour - 12) : TempHour;
+  WatchClock.Minute = atoi(strtok(NULL, ":"));
+
+  ESP_LOGI(__func__, "TimeWatchClock_1: %02d:%02d:%02d", WatchClock.Hour, WatchClock.Minute, WatchClock.Second);
+
+#warning "STATE.Watch1_EN and STATE.Start are not used in the code" ???
+  STATE.Watch1_EN = true;
+  STATE.Start = true;
+
+  EEP_Write();
+  SaveConfig();
+  ShowFlashSave();
+
+  HTTP.send(200, "text/plain", "OK");
+}
+/*******************************************************************************************************/
+
+/*******************************************************************************************************/
+// Recieve and saving Data primary clock
+void BDS()
+{
+  char TempByf[10];
+  HTTP.arg("Year").toCharArray(TempByf, 10);
+  SystemClock.year = atoi(strtok(TempByf, ":"));
+  HTTP.arg("Month").toCharArray(TempByf, 10);
+  SystemClock.month = atoi(strtok(TempByf, ":"));
+  HTTP.arg("Date").toCharArray(TempByf, 10);
+  SystemClock.date = atoi(strtok(TempByf, ":"));
+  RTC.setTime(SystemClock);
+  ESP_LOGI(__func__, "Data: %0004d.%02d.%02d", SystemClock.year, SystemClock.month, SystemClock.date);
+  HTTP.send(200, "text/plain", "OK");
+}
+/*******************************************************************************************************/
+
 // /*******************************************************************************************************/
 // // Time and Date update
 // void TimeUpdate()

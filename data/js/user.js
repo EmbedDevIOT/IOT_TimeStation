@@ -100,13 +100,12 @@ function getConfig(information) {
          catch (e) { };
 
          if (information == "index") {
-            if (ConfigFilePars["WiFiMode"] == 1) {
+            if (ConfigFilePars["WiFiMode"] == 0) {
                document.getElementById("WiFIP").value = "192.168.4.1";
                document.getElementById("ssid").value = ConfigFilePars["apssid"];
             }
-            else if (ConfigFilePars["WiFiMode"] == 0) {
-               document.getElementById("WiFiMode").value = "КЛИЕНТ";
-               document.getElementById("WiFIP").value = Pars["ip1"] + '.' + Pars["ip2"] + '.' + Pars["ip3"] + '.' + Pars["ip4"];
+            else if (ConfigFilePars["WiFiMode"] == 1) {
+               document.getElementById("WiFIP").value = ConfigFilePars["ip1"] + '.' + ConfigFilePars["ip2"] + '.' + ConfigFilePars["ip3"] + '.' + ConfigFilePars["ip4"];
             }
             document.getElementById("volt1").value = ConfigFilePars["volt1"] + " В";
          }
@@ -222,7 +221,7 @@ function getUpdateIndex() {
          document.getElementById("voltage").classList.add("E");
       }
 
-      document.getElementById("temperature").value = Pars["temp"];
+      document.getElementById("temperature").value = Pars["tSens"];
 
       // Проверка инициализации часового механизма №1
       if (Pars["ClockST1"] == 0) {

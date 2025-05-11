@@ -12,7 +12,12 @@ bool handleFileRead(String path);
 String getContentType(String filename);
 void UpdateData(void);
 void HandleClient(void);
-
+void BSaveSN(void);
+void StartWC1(void);
+void ClockPulseUPD(void);
+void UpdateWatchClock1(void);
+void BDS();
+void PowerControl(void);
 // void UpdateStateWC(void);
 // void TimeUpdate(void);
 // void SystemUpdate(void);
