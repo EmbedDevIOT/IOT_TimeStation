@@ -210,18 +210,21 @@ function getUpdateIndex() {
          document.getElementById("btnPWRtext").value = "ВКЛЮЧИТЬ";
       }
 
-      if (Pars["voltage"] <= 0) {
-         document.getElementById("voltage").value = "ОТКЛЮЧЕН";
-         document.getElementById("voltage").classList.remove("E");
-         document.getElementById("voltage").classList.add("D");
-      }
-      else if ((Pars["voltage"] <= 100) && (Pars["voltage"] > 0)) {
-         document.getElementById("voltage").value = Pars["voltage"] + " %";
-         document.getElementById("voltage").classList.remove("D");
-         document.getElementById("voltage").classList.add("E");
-      }
+      // if (Pars["voltage"] <= 0) {
+      //    document.getElementById("voltage").value = "ОТКЛЮЧЕН";
+      //    document.getElementById("voltage").classList.remove("E");
+      //    document.getElementById("voltage").classList.add("D");
+      // }
+      // else if ((Pars["voltage"] <= 100) && (Pars["voltage"] > 0)) {
+      //    document.getElementById("voltage").value = Pars["voltage"] + " %";
+      //    document.getElementById("voltage").classList.remove("D");
+      //    document.getElementById("voltage").classList.add("E");
+      // }
+      document.getElementById("bat").value = Pars["battery"] + " %";
 
-      document.getElementById("temperature").value = Pars["tSens"];
+      document.getElementById("tCPU").value = Pars["tCPU"];
+      document.getElementById("tSens").value = Pars["tSens"];
+
 
       // Проверка инициализации часового механизма №1
       if (Pars["ClockST1"] == 0) {

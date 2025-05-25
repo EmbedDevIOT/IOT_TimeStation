@@ -17,7 +17,7 @@ void StartWC1(void);
 void ClockPulseUPD(void);
 void UpdateWatchClock1(void);
 void BDS();
-void PowerControl(void);
+void IDLEControl(void);
 // void UpdateStateWC(void);
 // void TimeUpdate(void);
 // void SystemUpdate(void);

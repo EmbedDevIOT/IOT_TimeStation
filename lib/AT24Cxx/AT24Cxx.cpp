@@ -34,8 +34,8 @@ uint8_t AT24Cxx::read(uint16_t address)
 	
 	Wire.endTransmission();
 	delay(10);
-
-	Wire.requestFrom(i2c_address, 1);
+	// fix Copilot
+	Wire.requestFrom(i2c_address, (uint8_t)1);
 	delay(10);
 	
 	data = Wire.read();
@@ -108,8 +108,8 @@ void AT24Cxx::update(uint16_t address, uint8_t value)
 
 	Wire.endTransmission();
 	delay(10);
-
-	Wire.requestFrom(i2c_address, 1);
+	// fix Copilot
+	Wire.requestFrom(i2c_address, (uint8_t)1);
 	delay(10);
 
 	data = Wire.read();	
@@ -156,8 +156,8 @@ int AT24Cxx::operator[](uint16_t address)
 	
 	Wire.endTransmission();
 	delay(10);
-
-	Wire.requestFrom(i2c_address, 1);
+	// fix Copilot
+	Wire.requestFrom(i2c_address, (uint8_t)1);
 	delay(10);
 	
 	data = Wire.read();

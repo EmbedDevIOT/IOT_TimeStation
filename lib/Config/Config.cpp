@@ -100,6 +100,8 @@ void GPIOInit()
   pinMode(LED_CHB, OUTPUT);
   digitalWrite(LED_CHB, HIGH);
 
+  pinMode(PWR_SEN, INPUT);
+
 #ifdef DEBUG
   Serial.println(F("DONE"));
 #endif
@@ -189,9 +191,9 @@ void DebugInfo()
   char message[37];
 
   Serial.println(F("!!!!!!!!!!!!!!  DEBUG INFO  !!!!!!!!!!!!!!!!!!"));
-  ESP_LOGI("DEBUG", "GMT: %d", HWCFG.GMT);
+  // ESP_LOGI("DEBUG", "GMT: %d", HWCFG.GMT);
   ESP_LOGI("DEBUG", "Power State: %d", HWCFG.PwrState);
-  ESP_LOGI("DEBUG", "Battery: %0.2f V %3d", HWCFG.BatVoltage, HWCFG.BatPercent);
+  ESP_LOGI("DEBUG", "Battery: %0.2f V %3d %", HWCFG.BatVoltage, HWCFG.BatPercent);
   ESP_LOGI("DEBUG", "Watch VCC %2d", WatchClock.Volt);
   ESP_LOGI("DEBUG", "System Time: %02d:%02d:%02d", SystemClock.hour, SystemClock.minute, SystemClock.second);
   ESP_LOGI("DEBUG", "System Date: %4d.%02d.%02d", SystemClock.year, SystemClock.month, SystemClock.date);
@@ -200,32 +202,32 @@ void DebugInfo()
   // ESP_LOGI("DEBUG", "Watch2 Start: %d State: %d", WatchClock2.Start, WatchClock2.ClockState);
   ESP_LOGI("DEBUG", "Bright: ON %02d:%02d OFF: %02d:%02d", HWCFG.LedStartHour, HWCFG.LedStartMinute, HWCFG.LedFinishHour, HWCFG.LedFinishMinute);
   ESP_LOGI("DEBUG", "Bright: LedON %d | LedOnOFF %2d", HWCFG.LedON, HWCFG.LedOnOFF);
-  ESP_LOGI("DEBUG", "T1: %0.1f T1_OFS: %d", HWCFG.dsT1, HWCFG.T1_ofs);
-  ESP_LOGI("DEBUG", "VOL: %d", HWCFG.VOL);
-
+  // ESP_LOGI("DEBUG", "T1: %0.1f T1_OFS: %d", HWCFG.dsT1, HWCFG.T1_ofs);
+  // ESP_LOGI("DEBUG", "VOL: %d", HWCFG.VOL);
+  ESP_LOGI("DEBUG", "INA226: %.1f V %.1f mA", HWCFG.voltage, HWCFG.current);
   // If Preparation to Time Synch - done -> PWR GPS -> ON
-  if (HWCFG.GPSMode == GPS_ONCE)
-  {
-    ESP_LOGI("DEBUG", "GPS: PWR: %d, MODE: ONCE (to %02d:%02d)", HWCFG.GPSPWR, HWCFG.GPSStartHour, HWCFG.GPSStartMin);
-  }
-  else
-  {
-    ESP_LOGI("DEBUG", "GPS: PWR: %d, MODE: %d", HWCFG.GPSPWR, HWCFG.GPSMode);
-  }
-  ESP_LOGI("DEBUG", "BTN Mode %1d", HWCFG.BtnMode);
+  // if (HWCFG.GPSMode == GPS_ONCE)
+  // {
+  //   ESP_LOGI("DEBUG", "GPS: PWR: %d, MODE: ONCE (to %02d:%02d)", HWCFG.GPSPWR, HWCFG.GPSStartHour, HWCFG.GPSStartMin);
+  // }
+  // else
+  // {
+  //   ESP_LOGI("DEBUG", "GPS: PWR: %d, MODE: %d", HWCFG.GPSPWR, HWCFG.GPSMode);
+  // }
+  // ESP_LOGI("DEBUG", "BTN Mode %1d", HWCFG.BtnMode);
 
-  // If Power connectet to External VCC -> Show WiFi State
-  // Else Show elasped time to WiFi OFF
-  if (HWCFG.PwrState)
-  {
-    ESP_LOGI("DEBUG", "WiFi EN: %d", STATE.WiFiEnable);
-  }
-  else
-  {
-    ESP_LOGI("DEBUG", "WiFi EN: %d T:%02d:%02d", STATE.WiFiEnable, NetworkCFG.TimMin, NetworkCFG.TimSec);
-  }
+  // // If Power connectet to External VCC -> Show WiFi State
+  // // Else Show elasped time to WiFi OFF
+  // if (HWCFG.PwrState)
+  // {
+  //   ESP_LOGI("DEBUG", "WiFi EN: %d", STATE.WiFiEnable);
+  // }
+  // else
+  // {
+  //   ESP_LOGI("DEBUG", "WiFi EN: %d T:%02d:%02d", STATE.WiFiEnable, NetworkCFG.TimMin, NetworkCFG.TimSec);
+  // }
 
-  ESP_LOGI("DEBUG", "SN: %d", CFG.sn);
+  // ESP_LOGI("DEBUG", "SN: %d", CFG.sn);
 
   Serial.println(F("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"));
   Serial.println();

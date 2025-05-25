@@ -44,19 +44,24 @@ void processCommand(String cmd)
         Serial.print(" set to ");
         Serial.println(state);
     }
-    else if (action == "vcc" && cmd.length() > 5){
+    else if (action == "vcc" && cmd.length() > 5)
+    {
         int space2 = cmd.indexOf(' ', space1 + 1);
         int vcc = cmd.substring(space1 + 1, space2).toInt();
         ESP_LOGI(__func__, "vcc: %d", vcc);
         WatchClock.Volt = vcc;
     }
-    else if (action == "light" && cmd.length() > 7){
+    else if (action == "light" && cmd.length() > 7)
+    {
         int space2 = cmd.indexOf(' ', space1 + 1);
         int state = cmd.substring(space1 + 1, space2).toInt();
         ESP_LOGI(__func__, "Light: %d", state);
-        if(state){
+        if (state)
+        {
             HWCFG.LedON = true;
-        }else HWCFG.LedON = false;
+        }
+        else
+            HWCFG.LedON = false;
     }
     else if (action == "get")
     {
@@ -220,4 +225,5 @@ void PCF8574_InitPins()
 }
 
 void INA226_init()
-{}
+{
+}

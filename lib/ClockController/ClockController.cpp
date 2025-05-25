@@ -229,6 +229,7 @@ void ClockPulse(uint8_t clock, uint16_t step, uint32_t t_pulse)
         }
         StepUP_EN(HIGH, WatchClock.Volt); // DC/DC - ON and setup voltage
 
+        #warning // include current control 
         vTaskDelay(t_pulse / portTICK_PERIOD_MS);
 
         digitalWrite(LED_CHB, HIGH);

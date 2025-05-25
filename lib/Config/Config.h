@@ -16,6 +16,8 @@
 #include <EncButton.h>
 #include <Wire.h>
 #include "PCF8574.h"
+#include <BatteryMonitor.h>
+#include <INA226.h>
 // #include <ElegantOTA.h>
 
 #include <OneWire.h>
@@ -47,9 +49,15 @@
 #define ON 1
 #define OFF 0
 
+#define USB_PWR 2 
+
 // Prescaller for ADC
-#define R1 100000
-#define R2 10000
+#define R1 130000
+#define R2 100000
+
+// Battery voltage limits
+#define BATTERY_VOLTAGE_MIN 5.4
+#define BATTERY_VOLTAGE_MAX 6.9
 
 // Battery voltage divider resistors
 #define VOLTAGE_DIVIDER_RATIO (230.0 / 100.0)  // (R1 + R2) / R2
@@ -127,7 +135,7 @@ enum Watches
 };
 
 // GPS Work Modes 
-enum GPS
+enum GPSmode
 {
   GPS_OFF = 0,
   GPS_ONCE,
@@ -267,11 +275,15 @@ struct HardwareConfig
   int8_t Bright = 70;         // Led Brightness 
   float dsT1 = 0.0;           // Temperature T1 
   int8_t T1_ofs = 0;          // Temperature Offset T1 sensor
+  int8_t RTCtemp = 0;         // Temperature RTC
   int L_Lim = 1000;           // Light sensor enable limit (Light_ON)
   int i_sens = 0;             // Current sensor sensetivity 
   int I_PROT = 200;           // Current Protect
   float BatVoltage  = 0;      // Battery Value (Voltage)
   uint8_t BatPercent  = 0;    // Battery Value (Percent) 
+  float voltage = 0;          // Voltage value from INA226
+  float current = 0;          // Current value from INA226 
+  float power = 0;            // Power value from INA226
 
   int BAT_PROT = 40;          // Minimum Battery Limit in percent (go to sleep) 
   // Time Backlight ON / OFF 
@@ -317,6 +329,29 @@ struct MechanicalClock
 extern MechanicalClock WatchClock;
 extern MechanicalClock WatchClock2;
 
+//=======================================================================
+struct GPS
+{
+  bool Fix = false;
+
+  byte tValid = 0;
+  uint32_t tAge = 0;
+  byte dValid = 0;
+  uint32_t dAge = 0;
+  byte SValid = 0;
+  byte Sattelite = 0;
+  byte TimeZone = 0;
+  byte tUpdate = 0;
+  byte dUpdate = 0;
+  byte LocalHour = 0;
+  byte Hour = 0;
+  byte Minute = 0;
+  byte Second = 0;
+  byte Day = 0;
+  byte Month = 0;
+  uint16_t Year = 0;
+};
+extern GPS GPST;
 //=======================================================================
 
 //=======================================================================

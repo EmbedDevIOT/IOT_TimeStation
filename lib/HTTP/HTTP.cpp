@@ -13,13 +13,13 @@ void HTTPinit()
 #endif
   HTTP.begin();
   // ElegantOTA.begin(&HTTP); // Start ElegantOTA
-  HTTP.on("/update.json", UpdateData);
+  HTTP.on("/UpdateData.json", UpdateData);
   HTTP.on("/BSSN", BSaveSN);             // Save serial number.
   HTTP.on("/Start", StartWC1);           // Start/Stop Watch
   HTTP.on("/W1_UPD", UpdateWatchClock1); // Watch Clock_1 Update Parameters
   HTTP.on("/BDS", BDS);                  // RTC Data synhronization
   HTTP.on("/BCP", ClockPulseUPD);        // Clock pulse (+ 1Min or 1Hour)
-  HTTP.on("/BPWR", PowerControl);        // Select Power State (IDLE parametr)
+  HTTP.on("/BPWR", IDLEControl);         // Select Power State (IDLE parametr)
   //   HTTP.on("/wcupd.json", UpdateStateWC);
   //   HTTP.on("/SysUPD", SystemUpdate);
   //   HTTP.on("/TimeUPD", TimeUpdate);
@@ -96,11 +96,51 @@ void UpdateData()
 {
   String buf = "{";
 
-  buf += "\"t\":\"";
+  buf += "\"t1\":\"";
   buf += ((SystemClock.hour < 10) ? "0" : "") + String(SystemClock.hour) + ":" + ((SystemClock.minute < 10) ? "0" : "") + String(SystemClock.minute) + "\",";
-  buf += "\"d\":\"";
-  buf += String(SystemClock.year) + "-" + ((SystemClock.month < 10) ? "0" : "") + String(SystemClock.month) + "-" + ((SystemClock.date < 10) ? "0" : "") + String(SystemClock.date) + "\"";
+  buf += "\"TimeSC1\":\"";
+  buf += ((WatchClock.Hour < 10) ? "0" : "") + String(WatchClock.Hour) + ":" + ((WatchClock.Minute < 10) ? "0" : "") + String(WatchClock.Minute) + "\",";
+
+  buf += "\"TimeGPS\":\"";
+  buf += (((GPST.Hour + HWCFG.GMT) < 10) ? "0" : "") + String(GPST.Hour + HWCFG.GMT) + ":";
+  buf += ((GPST.Minute < 10) ? "0" : "") + String(GPST.Minute) + ":" + ((GPST.Second < 10) ? "0" : "") + String(GPST.Second) + "\",";
+
+  buf += "\"GPSValid\":" + String(GPST.SValid) + ",";
+  buf += "\"GPSage\":" + String(GPST.tAge) + ",";
+  buf += "\"IDLE\":" + String(STATE.IDLE) + ",";
+
+  buf += "\"GPSPWR\":" + String(HWCFG.GPSPWR) + ",";
+
+  // if (Config.GPSMode >= 1)
+  // {
+  //   TempBuf += "\"GPSPWR\":\"1\",";
+  // }
+  // else
+  //   TempBuf += "\"GPSPWR\":\"0\",";
+
+  buf += "\"GPSFIX\":" + String(GPST.Fix) + ",";
+  buf += "\"sat\":" + String(GPST.Sattelite) + ",";
+
+  buf += "\"ClockST1\":" + String(WatchClock.ClockState) + ",";
+  buf += "\"ClockST2\":" + String(WatchClock2.ClockState) + ",";
+
+  // buf += "\"RSST\":" + String(Config.RSMode) + ",";
+
+  // if (HWCFG.BrState == 1)
+  //   buf += "\"BrST\":\"E\",";
+  // else
+  //   buf += "\"BrST\":\"D\",";
+
+
+  buf += "\"signal\":" + String(GetSignalLevel()) + ",";
+  // buf += "\"light\":" + String(HWConfig.LightSens) + ",";
+  buf += "\"current\":" + String(HWCFG.current) + ",";
+  buf += "\"temp\":" + String(HWCFG.RTCtemp) + ",";
+  buf += "\"battery\":" + String(HWCFG.BatPercent) + ",";
+  buf += "\"voltage\":" + String(HWCFG.BatVoltage);
+
   buf += "}";
+  Serial.println(buf);
 
   HTTP.send(200, "text/plain", buf);
 }
@@ -134,7 +174,7 @@ void BSaveSN()
 
 /*******************************************************************************************************/
 // Start/Stop Watch Clock #1
-// Example GET request: /Start 
+// Example GET request: /Start
 void StartWC1()
 {
   if ((WatchClock.Start == STOP) || (WatchClock.Start == HOME))
@@ -150,9 +190,8 @@ void StartWC1()
 }
 /*******************************************************************************************************/
 
-
 /*******************************************************************************************************/
-void PowerControl()
+void IDLEControl()
 {
   HTTP.send(200, "text/plain", "OK"); // Oтправляем ответ Reset OK
 
@@ -162,7 +201,7 @@ void PowerControl()
     Serial.printf(">>>> IDLE state START <<<<");
   }
   else
-    ESP_LOGI("PowerControl", ">>>> IDLE state START <<<<");
+    ESP_LOGI("IDLEControl", ">>>> IDLE state START <<<<");
 }
 /*******************************************************************************************************/
 
@@ -192,8 +231,6 @@ void ClockPulseUPD()
   if (TclUPD.CH == CH_AB)
   {
     ClockPulse(CH_AB, TclUPD.step, TclUPD.pulse);
-    // ClockPulse(CH_A, TclUPD.step, TclUPD.pulse);
-    // ClockPulse(CH_B, TclUPD.step, TclUPD.pulse);
   }
   else
   {

@@ -1,7 +1,7 @@
 #include "Config.h"
 
 #include "SysHandler.h"
-#include "BatteryMonitor.h"
+
 #include "ClockController.h"
 #include "FileConfig.h"
 #include "WF.h"
@@ -22,11 +22,15 @@ TaskHandle_t TaskCore0_Gen;
 TaskHandle_t TaskCore1_Gen;
 TaskHandle_t TaskCore0_TSH;
 TaskHandle_t TaskCore1_1000ms;
+TaskHandle_t TaskINA226;
 
 SemaphoreHandle_t i2c_mutex;
 
 Audio Amplifier;
 MicroDS3231 RTC;
+GPS GPST;
+
+INA226 ina226(ADR_INA226);
 
 BatteryMonitor battery(ADC1_CHANNEL_7, BATTERY_VOLTAGE_MIN, BATTERY_VOLTAGE_MAX, R1, R2);
 OneWire oneWire1(T1);
@@ -55,10 +59,13 @@ uint8_t sec_cnt = 0;
 //======================    FUNCTION PROTOTYPS     ======================
 // - FreeRTOS function --
 void HandlerCore0(void *pvParameters);
+void Handler_INA226(void *pvParameters);
 void HandlerCore1(void *pvParameters);
 void HandlerTask1000(void *pvParameters);
 void HandlerTask1Wire(void *pvParameters);
 // Other Function
+void PowerControl(void);
+void CheckBatteryState(void);
 void GetDSData(void);
 void ButtonHandler(void);
 void UART_Recieve_Data(void);
@@ -96,11 +103,6 @@ void SystemGeneralInit()
     // System Structures Init
     SystemStateInit();
 
-    // Инициализация PCF8574
-    // Wire.beginTransmission(ADR_IOEXP);
-    // Wire.write(0X00);
-    // Wire.endTransmission();
-
 #ifdef DEBUG
     I2C_Scanning();
 #endif
@@ -136,6 +138,15 @@ void SystemGeneralInit()
     // #endif
     ESP_LOGI(__func__, "Battery Monitor Init...");
     battery.begin();
+    battery.setLowBatteryThreshold(BATTERY_VOLTAGE_MIN);
+    battery.setFilterMode(EXPONENTIAL);
+    battery.setExponentialAlpha(0.2);
+    CheckBatteryState();
+    ESP_LOGI(__func__, "DONE");
+
+    ESP_LOGI(__func__, "Current Sensor Init...");
+    ina226.begin();
+    ina226.setMaxCurrentShunt(2.0, 0.1); // 2A 0.1 Ohm
     ESP_LOGI(__func__, "DONE");
 
     // BAttery ADC
@@ -258,8 +269,8 @@ void setup()
     // // Установить уровень логирования для конкретного компонента (например, "ButtonHandler")
     // esp_log_level_set("ButtonHandler", ESP_LOG_INFO);
 
-    CFG.fw = "0.2.0";
-    CFG.fwdate = "11.05.2024";
+    CFG.fw = "0.3.5";
+    CFG.fwdate = "25.05.2024";
 
     Serial.begin(UARTSpeed);
 
@@ -310,6 +321,17 @@ void setup()
         NULL,
         1,
         &TaskCore1_1000ms,
+        1);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+
+    // Task: INA226 Handler
+    xTaskCreatePinnedToCore(
+        Handler_INA226,
+        "TaskINA226",
+        2048,
+        NULL,
+        1,
+        &TaskINA226,
         1);
     vTaskDelay(500 / portTICK_PERIOD_MS);
 }
@@ -376,6 +398,8 @@ void HandlerTask1Wire(void *pvParameters)
         else
         {
             GetDSData();
+            HWCFG.RTCtemp = RTC.getTemperature();
+            CheckBatteryState();
             sec = 1;
         }
 
@@ -395,7 +419,9 @@ void HandlerCore1(void *pvParameters)
         SystemClock = RTC.getTime();
         // xSemaphoreGive(i2c_mutex);
 
-        WatchHandler();
+
+        // WatchHandler();
+        PowerControl();
         BacklightController();
 
         vTaskDelay(500 / portTICK_PERIOD_MS);
@@ -412,13 +438,24 @@ void HandlerTask1000(void *pvParameters)
 
     for (;;)
     {
-        HWCFG.BatVoltage = battery.getBatteryVoltage();
-        HWCFG.BatPercent = battery.getBatteryPercent();
-        // Serial.printf("BatteryADCRaw: %3d \r\n", battery.getAdcRaw());
-        // Serial.printf("BatteryDevider: %0.3f \r\n", battery.getDividerVoltage());
-
         // DebugInfo();
         vTaskDelay(2000 / portTICK_PERIOD_MS);
+    }
+}
+
+// Current Sensor Power control 
+void Handler_INA226(void *pvParameters)
+{
+    Serial.print("Task: INA226 Handler \r\n");
+    Serial.print("T:300ms Stack:2048 Core:");
+    Serial.println(xPortGetCoreID());
+    for (;;)
+    {
+        HWCFG.voltage = ina226.getBusVoltage();
+        HWCFG.current = ina226.getCurrent_mA();
+        HWCFG.power = ina226.getPower_mW();
+
+        vTaskDelay(300 / portTICK_PERIOD_MS);
     }
 }
 //=======================================================================
@@ -431,6 +468,39 @@ void GetDSData()
     HWCFG.dsT1 = HWCFG.dsT1 + HWCFG.T1_ofs;
 }
 //=========================================================================
+
+//=========================================================================
+int CheckPWR()
+{
+  return !digitalRead(PWR_SEN);
+}
+//=========================================================================
+
+//=========================================================================
+void PowerControl()
+{
+    // Check Power state
+    /* !PwrState! 0 - Battery | 1 - PowerSypply | 2 - USB connect  */
+    (HWCFG.BatPercent >= 0) ? HWCFG.PwrState = CheckPWR() : HWCFG.PwrState = USB_PWR;
+}
+//=========================================================================
+
+//=========================================================================
+// Get Data from Battery Sensor
+void CheckBatteryState()
+{
+    HWCFG.BatVoltage = battery.getBatteryVoltage();
+    HWCFG.BatPercent = battery.getBatteryPercent();
+
+    // if (battery.isLowBattery())
+    // {
+    //     ESP_LOGI(TAG, "[LOW BATTERY]");
+    // }
+    // else
+    //     ESP_LOGI(TAG, "Voltage: %0.2f Percent: %2d", HWCFG.BatVoltage, HWCFG.BatPercent);
+}
+//=========================================================================
+
 //=================== Keyboard buttons Handler =============================
 void ButtonHandler()
 {
